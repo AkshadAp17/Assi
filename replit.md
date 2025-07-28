@@ -30,11 +30,12 @@ Preferred communication style: Simple, everyday language.
 **Rationale**: Express provides a mature, flexible foundation for the API. TypeScript ensures type safety across the full stack. REST API design keeps things simple and predictable.
 
 ### Authentication System
-- **Provider**: Replit Auth (OpenID Connect)
-- **Session Storage**: PostgreSQL with connect-pg-simple
+- **Provider**: Email/Password authentication with bcrypt hashing
+- **Session Storage**: PostgreSQL with express-session
 - **Authorization**: Role-based access control (admin, project_lead, developer)
+- **Default Admin**: Email: admin@gamedev.com, Password: admin123
 
-**Rationale**: Replit Auth integration provides seamless authentication in the Replit environment. Role-based permissions allow for proper access control across different user types.
+**Rationale**: Standard email/password authentication provides universal compatibility without dependency on external providers. Bcrypt ensures secure password storage with proper salt rounds.
 
 ## Key Components
 
@@ -67,10 +68,20 @@ Preferred communication style: Simple, everyday language.
 
 ## Data Flow
 
-1. **Authentication Flow**: User logs in via Replit Auth → Session created in PostgreSQL → User profile stored/updated
+1. **Authentication Flow**: User logs in with email/password → Credentials verified with bcrypt → Session created in PostgreSQL → User profile loaded
 2. **Project Management**: Admins/Project Leads create projects → Assign team members → Track progress
 3. **Document Sharing**: Users upload files to projects → Files stored locally → Access controlled by authentication
 4. **Role Enforcement**: Middleware checks user roles before allowing access to protected routes
+
+## Recent Changes (July 28, 2025)
+
+✓ Replaced Replit Auth with standard email/password authentication
+✓ Updated database schema with passwordHash field and proper constraints
+✓ Implemented login/register pages with form validation
+✓ Created authentication middleware and routes (/api/auth/login, /api/auth/register, /api/auth/user, /api/auth/logout)
+✓ Updated all API routes to use new authentication system
+✓ Created default admin user (admin@gamedev.com / admin123)
+✓ Fixed TypeScript compilation errors and application startup issues
 
 ## External Dependencies
 

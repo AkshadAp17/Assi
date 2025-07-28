@@ -32,13 +32,13 @@ export const userRoleEnum = pgEnum('user_role', ['admin', 'project_lead', 'devel
 export const projectStatusEnum = pgEnum('project_status', ['active', 'completed', 'on_hold']);
 
 // User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  passwordHash: varchar("password_hash").notNull(),
   role: userRoleEnum("role").notNull().default('developer'),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -130,6 +130,23 @@ export const documentsRelations = relations(documents, ({ one }) => ({
 // Schema types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type CreateUser = typeof users.$inferInsert;
+
+// Login schemas
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+});
+
+export type LoginForm = z.infer<typeof loginSchema>;
+export type RegisterForm = z.infer<typeof registerSchema>;
 
 export type InsertProject = typeof projects.$inferInsert;
 export type Project = typeof projects.$inferSelect;

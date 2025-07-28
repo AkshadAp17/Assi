@@ -2,8 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
-import { requireAdmin, requireProjectLead, requireDeveloper, type AuthRequest } from "./middleware/auth";
+import { setupAuth, isAuthenticated, type AuthRequest } from "./auth";
+import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware/auth";
 import { upload } from "./middleware/upload";
 import { insertUserSchema, insertProjectSchema, insertProjectAssignmentSchema } from "@shared/schema";
 import { z } from "zod";
@@ -25,17 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Auth routes are now handled in auth.ts
 
   // User management routes (Admin only)
   app.get('/api/users', isAuthenticated, requireAdmin, async (req, res) => {
@@ -91,13 +81,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Project routes
-  app.get('/api/projects', isAuthenticated, requireDeveloper, async (req: any, res) => {
+  app.get('/api/projects', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const dbUser = await storage.getUser(userId);
+      const userId = req.user.id;
       
       let projects;
-      if (dbUser?.role === 'developer') {
+      if (req.user.role === 'developer') {
         projects = await storage.getProjectsByUser(userId);
       } else {
         projects = await storage.getAllProjects();
@@ -110,11 +99,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/:id', isAuthenticated, requireDeveloper, async (req: any, res) => {
+  app.get('/api/projects/:id', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const dbUser = await storage.getUser(userId);
+      const userId = req.user.id;
       
       const project = await storage.getProject(id);
       if (!project) {
@@ -122,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if developer has access to this project
-      if (dbUser?.role === 'developer') {
+      if (req.user.role === 'developer') {
         const hasAccess = project.assignments.some(assignment => assignment.userId === userId);
         if (!hasAccess) {
           return res.status(403).json({ message: "Access denied" });
@@ -136,10 +124,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/projects', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/projects', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const projectData = insertProjectSchema.parse(req.body);
-      const userId = req.user.claims.sub;
+      const userId = req.user.id;
       
       const project = await storage.createProject({
         ...projectData,
@@ -156,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/projects/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.patch('/api/projects/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const projectData = insertProjectSchema.partial().parse(req.body);
@@ -172,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/projects/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.delete('/api/projects/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       await storage.deleteProject(id);
@@ -184,11 +172,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Project assignment routes
-  app.post('/api/projects/:id/assign', isAuthenticated, requireProjectLead, async (req: any, res) => {
+  app.post('/api/projects/:id/assign', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const { id: projectId } = req.params;
       const { userId } = req.body;
-      const assignedBy = req.user.claims.sub;
+      const assignedBy = req.user.id;
       
       const assignment = await storage.assignUserToProject(projectId, userId, assignedBy);
       res.status(201).json(assignment);
@@ -198,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/projects/:projectId/assign/:userId', isAuthenticated, requireProjectLead, async (req: any, res) => {
+  app.delete('/api/projects/:projectId/assign/:userId', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const { projectId, userId } = req.params;
       await storage.removeUserFromProject(projectId, userId);
@@ -210,14 +198,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get('/api/projects/:id/documents', isAuthenticated, requireDeveloper, async (req: any, res) => {
+  app.get('/api/projects/:id/documents', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.claims.sub;
-      const dbUser = await storage.getUser(userId);
+      const userId = req.user.id;
       
       // Check if developer has access to this project
-      if (dbUser?.role === 'developer') {
+      if (req.user.role === 'developer') {
         const project = await storage.getProject(id);
         if (!project) {
           return res.status(404).json({ message: "Project not found" });
@@ -241,10 +228,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     isAuthenticated, 
     requireProjectLead, 
     upload.array('files', 10), 
-    async (req: any, res) => {
+    async (req: AuthRequest, res) => {
       try {
         const { id: projectId } = req.params;
-        const userId = req.user.claims.sub;
+        const userId = req.user.id;
         const files = req.files as Express.Multer.File[];
 
         if (!files || files.length === 0) {
@@ -272,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  app.delete('/api/documents/:id', isAuthenticated, requireProjectLead, async (req: any, res) => {
+  app.delete('/api/documents/:id', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       
@@ -296,16 +283,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats route
-  app.get('/api/dashboard/stats', isAuthenticated, requireDeveloper, async (req: any, res) => {
+  app.get('/api/dashboard/stats', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const dbUser = await storage.getUser(userId);
-      
-      if (!dbUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      const stats = await storage.getDashboardStats(userId, dbUser.role);
+      const userId = req.user.id;
+      const stats = await storage.getDashboardStats(userId, req.user.role);
       res.json(stats);
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
