@@ -28,12 +28,14 @@ export interface IStorage {
   // Additional user operations
   getAllUsers(): Promise<UserWithStats[]>;
   updateUserRole(userId: string, role: 'admin' | 'project_lead' | 'developer'): Promise<User>;
+  updateUserPassword(userId: string, passwordHash: string): Promise<void>;
   deleteUser(userId: string): Promise<void>;
   
   // Project operations
   getAllProjects(): Promise<ProjectWithDetails[]>;
   getProject(id: string): Promise<ProjectWithDetails | undefined>;
   getProjectsByUser(userId: string): Promise<ProjectWithDetails[]>;
+  getProjectsByLead(userId: string): Promise<ProjectWithDetails[]>;
   createProject(projectData: InsertProject): Promise<Project>;
   updateProject(id: string, projectData: Partial<InsertProject>): Promise<Project>;
   deleteProject(id: string): Promise<void>;
@@ -133,6 +135,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  async updateUserPassword(userId: string, passwordHash: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
   }
 
   async deleteUser(userId: string): Promise<void> {
@@ -293,6 +302,91 @@ export class DatabaseStorage implements IStorage {
         documents: projectDocuments.length,
       },
     } as ProjectWithDetails;
+  }
+
+  async getProjectsByLead(userId: string): Promise<ProjectWithDetails[]> {
+    // Get all projects where user is the project lead
+    const result = await db
+      .select()
+      .from(projects)
+      .where(eq(projects.projectLeadId, userId))
+      .orderBy(desc(projects.createdAt));
+
+    // Get full project details for each project
+    const projectsWithDetails = await Promise.all(
+      result.map(async (project) => {
+        // Get creator details
+        const [createdByUser] = await db
+          .select({
+            id: users.id,
+            firstName: users.firstName,
+            lastName: users.lastName,
+            email: users.email,
+          })
+          .from(users)
+          .where(eq(users.id, project.createdBy));
+
+        // Get project lead details
+        let projectLeadUser = undefined;
+        if (project.projectLeadId) {
+          [projectLeadUser] = await db
+            .select({
+              id: users.id,
+              firstName: users.firstName,
+              lastName: users.lastName,
+              email: users.email,
+            })
+            .from(users)
+            .where(eq(users.id, project.projectLeadId));
+        }
+
+        // Get assignments
+        const assignments = await db
+          .select({
+            id: projectAssignments.id,
+            projectId: projectAssignments.projectId,
+            userId: projectAssignments.userId,
+            assignedBy: projectAssignments.assignedBy,
+            createdAt: projectAssignments.createdAt,
+            user: {
+              id: users.id,
+              firstName: users.firstName,
+              lastName: users.lastName,
+              email: users.email,
+              profileImageUrl: users.profileImageUrl,
+            },
+          })
+          .from(projectAssignments)
+          .innerJoin(users, eq(projectAssignments.userId, users.id))
+          .where(eq(projectAssignments.projectId, project.id));
+
+        // Get documents
+        const projectDocuments = await db
+          .select()
+          .from(documents)
+          .where(eq(documents.projectId, project.id));
+
+        return {
+          id: project.id,
+          name: project.name,
+          description: project.description,
+          status: project.status,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt,
+          deadline: project.deadline,
+          createdBy: createdByUser,
+          projectLead: projectLeadUser,
+          assignments,
+          documents: projectDocuments,
+          _count: {
+            assignments: assignments.length,
+            documents: projectDocuments.length,
+          },
+        } as ProjectWithDetails;
+      })
+    );
+
+    return projectsWithDetails;
   }
 
   async getProjectsByUser(userId: string): Promise<ProjectWithDetails[]> {

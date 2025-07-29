@@ -75,6 +75,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 29, 2025)
 
+### Project Lead Functionality Implementation
+✓ Enhanced project access control for project leads
+✓ Project leads can now create and manage their own projects
+✓ Added ability for project leads to assign team members to their projects
+✓ Project leads can update projects they lead or created
+✓ Implemented password update functionality for all users
+✓ Fixed logout functionality to work with both GET and POST methods
+
 ### Email Integration for User Management
 ✓ Added Nodemailer integration with Gmail SMTP
 ✓ Implemented welcome email functionality for new user creation

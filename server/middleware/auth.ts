@@ -3,20 +3,20 @@ import { AuthRequest } from '../auth';
 import { storage } from '../storage';
 
 export const requireRole = (roles: string[]) => {
-  return async (req: AuthRequest, res: Response, next: NextFunction) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      // req.user is now the full user object from our auth system
+      // req.user should be set by isAuthenticated middleware
       if (!req.user) {
-        return res.status(401).json({ message: 'User not found' });
+        return res.status(401).json({ message: 'Unauthorized' });
       }
 
       if (!roles.includes(req.user.role)) {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
 
-      // User is already available in req.user
       next();
     } catch (error) {
+      console.error('Role check error:', error);
       res.status(500).json({ message: 'Error checking permissions' });
     }
   };

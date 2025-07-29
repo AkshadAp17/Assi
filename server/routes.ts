@@ -118,15 +118,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Project routes
+  // Password update route - users can update their own password
+  app.patch('/api/users/password', isAuthenticated, async (req: AuthRequest, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user!.id;
+      
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current password and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters long" });
+      }
+
+      // Get current user to verify password
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Verify current password
+      const isValidPassword = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isValidPassword) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password and update
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+      await storage.updateUserPassword(userId, newPasswordHash);
+
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ message: "Failed to update password" });
+    }
+  });
+
+  // Project routes - updated to show different data for project leads
   app.get('/api/projects', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       let projects;
-      if (req.user.role === 'developer') {
+      if (req.user!.role === 'developer') {
+        // Developers see only their assigned projects
         projects = await storage.getProjectsByUser(userId);
+      } else if (req.user!.role === 'project_lead') {
+        // Project leads see projects they lead + projects they're assigned to
+        const ledProjects = await storage.getProjectsByLead(userId);
+        const assignedProjects = await storage.getProjectsByUser(userId);
+        // Combine and deduplicate
+        const allProjects = [...ledProjects, ...assignedProjects];
+        projects = allProjects.filter((project, index, self) => 
+          index === self.findIndex(p => p.id === project.id)
+        );
       } else {
+        // Admins see all projects
         projects = await storage.getAllProjects();
       }
       
@@ -140,17 +188,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/projects/:id', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       const project = await storage.getProject(id);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
 
-      // Check if developer has access to this project
-      if (req.user.role === 'developer') {
+      // Check access permissions
+      if (req.user!.role === 'developer') {
         const hasAccess = project.assignments.some(assignment => assignment.userId === userId);
         if (!hasAccess) {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      } else if (req.user!.role === 'project_lead') {
+        // Project leads can access projects they lead or are assigned to
+        const isLead = project.projectLeadId === userId;
+        const isAssigned = project.assignments.some(assignment => assignment.userId === userId);
+        if (!isLead && !isAssigned) {
           return res.status(403).json({ message: "Access denied" });
         }
       }
@@ -162,10 +217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/projects', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  // Allow both admins and project leads to create projects
+  app.post('/api/projects', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const projectData = insertProjectSchema.parse(req.body);
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       const project = await storage.createProject({
         ...projectData,
@@ -182,10 +238,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/projects/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  // Allow project leads to update their own projects
+  app.patch('/api/projects/:id', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
+      const userId = req.user!.id;
       const projectData = insertProjectSchema.partial().parse(req.body);
+      
+      // Check if user can update this project
+      if (req.user!.role === 'project_lead') {
+        const project = await storage.getProject(id);
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+        
+        if (project.projectLeadId !== userId && project.createdBy.id !== userId) {
+          return res.status(403).json({ message: "You can only update projects you lead or created" });
+        }
+      }
       
       const project = await storage.updateProject(id, projectData);
       res.json(project);
@@ -214,7 +284,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id: projectId } = req.params;
       const { userId } = req.body;
-      const assignedBy = req.user.id;
+      const assignedBy = req.user!.id;
+      
+      if (!userId) {
+        return res.status(400).json({ message: "User ID is required" });
+      }
+      
+      // Check if project lead can assign to this project
+      if (req.user!.role === 'project_lead') {
+        const project = await storage.getProject(projectId);
+        if (!project) {
+          return res.status(404).json({ message: "Project not found" });
+        }
+        
+        if (project.projectLeadId !== assignedBy && project.createdBy.id !== assignedBy) {
+          return res.status(403).json({ message: "You can only assign users to projects you lead or created" });
+        }
+      }
       
       const assignment = await storage.assignUserToProject(projectId, userId, assignedBy);
       res.status(201).json(assignment);
@@ -242,7 +328,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.id;
       
       // Check if developer has access to this project
-      if (req.user.role === 'developer') {
+      if (req.user!.role === 'developer') {
         const project = await storage.getProject(id);
         if (!project) {
           return res.status(404).json({ message: "Project not found" });
