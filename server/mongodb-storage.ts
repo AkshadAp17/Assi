@@ -116,7 +116,7 @@ class MongoDBStorage {
 
     // Get assignments with user details
     const assignments = await ProjectAssignment.find({ projectId: id })
-      .populate('userId', 'id email firstName lastName profileImageUrl');
+      .populate('userId', 'id email firstName lastName profileImageUrl role');
 
     // Get documents
     const documents = await Document.find({ projectId: id });
@@ -335,7 +335,8 @@ class MongoDBStorage {
         email: assignment.userId.email,
         firstName: assignment.userId.firstName || null,
         lastName: assignment.userId.lastName || null,
-        profileImageUrl: assignment.userId.profileImageUrl || null
+        profileImageUrl: assignment.userId.profileImageUrl || null,
+        role: assignment.userId.role
       } : null,
       createdAt: assignment.createdAt
     };

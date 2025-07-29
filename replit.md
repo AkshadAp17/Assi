@@ -75,6 +75,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 29, 2025)
 
+### Complete MongoDB Atlas Migration & Project Assignment Fixes (Current)
+✓ **Successfully migrated to MongoDB Atlas**: Replaced PostgreSQL with MongoDB using provided connection string
+✓ **Fixed Project Assignment Logic**: Project leads can now successfully assign developers to projects (resolved 403 Forbidden error)
+✓ **Corrected Role Display**: Team member badges now correctly show "PROJECT LEAD" vs "DEVELOPER" based on actual user roles
+✓ **Enhanced Assignment Permissions**: Added proper role validation and detailed logging for assignment attempts
+✓ **Updated Dashboard Navigation**: "Manage Team" button now navigates appropriately based on user role
+✓ **Database Schema Migration**: Successfully converted from Drizzle/PostgreSQL to Mongoose/MongoDB with proper indexes
+✓ **Session Management Updated**: Switched from PostgreSQL session store to memory store for MongoDB compatibility
+✓ **Admin User Recreation**: Created admin user (admin@gamedev.com / admin123) in fresh MongoDB database
+
+### MongoDB Migration Complete - Replit Agent to Standard Replit Environment & UI Enhancements
+
 ### Migration Complete - Replit Agent to Standard Replit Environment & UI Enhancements (Current)
 ✓ **Successfully migrated from Replit Agent**: Project now runs in standard Replit environment
 ✓ **Database Setup**: Created PostgreSQL database and pushed schema using Drizzle migrations

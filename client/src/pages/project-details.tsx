@@ -40,7 +40,7 @@ interface ProjectWithDetails {
     projectId: string;
     userId: string;
     assignedBy: string;
-    user: { id: string; firstName: string | null; lastName: string | null; email: string; profileImageUrl: string | null };
+    user: { id: string; firstName: string | null; lastName: string | null; email: string; profileImageUrl: string | null; role: string };
     createdAt: Date | null;
   }>;
   documents: any[];
@@ -423,9 +423,15 @@ export default function ProjectDetails() {
                                   : assignment.user.email?.split('@')[0] || 'User'
                                 }
                               </p>
-                              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                <div className="w-1.5 h-1.5 rounded-full mr-1.5 bg-blue-500"></div>
-                                PROJECT LEAD
+                              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                                assignment.user.role === 'project_lead' 
+                                  ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                                  : 'bg-green-100 text-green-800 border-green-200'
+                              }`}>
+                                <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                  assignment.user.role === 'project_lead' ? 'bg-blue-500' : 'bg-green-500'
+                                }`}></div>
+                                {assignment.user.role === 'project_lead' ? 'PROJECT LEAD' : 'DEVELOPER'}
                               </div>
                             </div>
                             <p className="text-sm text-gray-600" data-testid={`text-user-email-${assignment.user.id}`}>
