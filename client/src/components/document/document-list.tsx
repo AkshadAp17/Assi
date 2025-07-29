@@ -167,10 +167,11 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => handleDownload(doc.id, doc.originalName)}
-                className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200"
+                className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 border-purple-200 hover:border-purple-300 rounded-lg transition-all duration-200 hover:shadow-sm"
                 data-testid={`button-download-${doc.id}`}
               >
-                <Download className="h-4 w-4" />
+                <Download className="h-4 w-4 mr-1.5" />
+                <span className="hidden sm:inline">Download</span>
               </Button>
               
               {(user?.role === 'admin' || user?.role === 'project_lead') && (
@@ -179,10 +180,11 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
                   size="sm"
                   onClick={() => deleteDocumentMutation.mutate(doc.id)}
                   disabled={deleteDocumentMutation.isPending}
-                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300 rounded-lg transition-all duration-200 hover:shadow-sm"
                   data-testid={`button-delete-${doc.id}`}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 mr-1.5" />
+                  <span className="hidden sm:inline">Delete</span>
                 </Button>
               )}
             </div>
