@@ -31,9 +31,12 @@ import { Button } from "@/components/ui/button";
 import { insertUserSchema } from "@shared/schema";
 import { z } from "zod";
 
-const createUserSchema = insertUserSchema.extend({
-  role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
+const createUserSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -108,8 +111,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
   });
 
   const onSubmit = (data: CreateUserForm) => {
-    console.log("Form submitted with data:", data);
-    console.log("Form errors:", form.formState.errors);
     createUserMutation.mutate(data);
   };
 
@@ -246,11 +247,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 type="submit"
                 disabled={createUserMutation.isPending}
                 data-testid="button-submit-create-user"
-                onClick={(e) => {
-                  console.log("Button clicked");
-                  console.log("Form valid:", form.formState.isValid);
-                  console.log("Form errors:", form.formState.errors);
-                }}
               >
                 {createUserMutation.isPending ? "Creating..." : "Add User"}
               </Button>
