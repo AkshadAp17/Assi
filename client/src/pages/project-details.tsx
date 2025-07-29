@@ -7,6 +7,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Sidebar } from "@/components/layout/sidebar";
 import { UploadDocumentDialog } from "@/components/document/upload-document-dialog";
+import { DocumentList } from "@/components/document/document-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -384,54 +385,7 @@ export default function ProjectDetails() {
                 )}
               </CardHeader>
               <CardContent>
-                {project.documents.length > 0 ? (
-                  <div className="space-y-3">
-                    {project.documents.map((document) => (
-                      <div
-                        key={document.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                        data-testid={`document-${document.id}`}
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate" data-testid={`text-document-name-${document.id}`}>
-                            {document.originalName}
-                          </p>
-                          <p className="text-xs text-gray-500" data-testid={`text-document-size-${document.id}`}>
-                            {formatFileSize(document.fileSize)} • {new Date(document.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <a
-                            href={`/uploads/${document.fileName}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-700"
-                            data-testid={`link-download-document-${document.id}`}
-                          >
-                            <Download className="h-4 w-4" />
-                          </a>
-                          {canDeleteDocuments && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteDocumentMutation.mutate(document.id)}
-                              disabled={deleteDocumentMutation.isPending}
-                              className="text-red-600 hover:text-red-700"
-                              data-testid={`button-delete-document-${document.id}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No documents uploaded</p>
-                  </div>
-                )}
+                <DocumentList projectId={project.id} documents={project.documents} />
               </CardContent>
             </Card>
           </div>

@@ -170,6 +170,11 @@ export const insertProjectSchema = createInsertSchema(projects).omit({
   createdBy: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  deadline: z.string().optional().transform((val) => {
+    if (!val || val === '') return null;
+    return new Date(val);
+  }).nullable().or(z.null()),
 });
 
 export const insertProjectAssignmentSchema = createInsertSchema(projectAssignments).omit({

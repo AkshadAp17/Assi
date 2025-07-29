@@ -51,11 +51,7 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
 
   const createProjectMutation = useMutation({
     mutationFn: async (data: CreateProjectForm) => {
-      const projectData = {
-        ...data,
-        deadline: data.deadline ? new Date(data.deadline).toISOString() : null,
-      };
-      await apiRequest('POST', '/api/projects', projectData);
+      await apiRequest('POST', '/api/projects', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/projects"] });

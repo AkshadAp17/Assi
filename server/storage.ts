@@ -44,7 +44,8 @@ export interface IStorage {
   getProjectAssignments(projectId: string): Promise<ProjectAssignment[]>;
   
   // Document operations
-  uploadDocument(documentData: InsertDocument): Promise<Document>;
+  createDocument(documentData: InsertDocument): Promise<Document>;
+  getDocument(id: string): Promise<Document | undefined>;
   getProjectDocuments(projectId: string): Promise<Document[]>;
   deleteDocument(id: string): Promise<void>;
   
@@ -361,11 +362,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Document operations
-  async uploadDocument(documentData: InsertDocument): Promise<Document> {
+  async createDocument(documentData: InsertDocument): Promise<Document> {
     const [document] = await db
       .insert(documents)
       .values(documentData)
       .returning();
+    return document;
+  }
+
+  async getDocument(id: string): Promise<Document | undefined> {
+    const [document] = await db.select().from(documents).where(eq(documents.id, id));
     return document;
   }
 

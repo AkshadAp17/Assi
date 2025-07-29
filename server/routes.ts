@@ -236,7 +236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const uploadedDocuments = [];
         for (const file of files) {
-          const document = await storage.uploadDocument({
+          const document = await storage.createDocument({
             projectId,
             fileName: file.filename,
             originalName: file.originalname,
@@ -255,19 +255,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // File download route
+  app.get('/api/documents/:id/download', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+    try {
+      const { id } = req.params;
+      const document = await storage.getDocument(id);
+      
+      if (!document) {
+        return res.status(404).json({ message: 'Document not found' });
+      }
+
+      // Check if user has access to this project
+      const project = await storage.getProject(document.projectId);
+      if (!project) {
+        return res.status(404).json({ message: 'Project not found' });
+      }
+
+      if (req.user!.role === 'developer') {
+        const hasAccess = project.assignments.some(assignment => assignment.userId === req.user!.id);
+        if (!hasAccess) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      }
+
+      const filePath = path.join(process.cwd(), 'uploads', document.fileName);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: 'File not found on disk' });
+      }
+
+      res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
+      res.setHeader('Content-Type', document.mimeType);
+      res.sendFile(path.resolve(filePath));
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      res.status(500).json({ message: 'Failed to download document' });
+    }
+  });
+
   app.delete('/api/documents/:id', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       
-      // Get document info to delete the file
-      const documents = await storage.getProjectDocuments(''); // We need to modify this to get by document ID
-      const document = documents.find(d => d.id === id);
+      const document = await storage.getDocument(id);
       
       if (document) {
         const filePath = path.join(process.cwd(), 'uploads', document.fileName);
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
+      } else {
+        return res.status(404).json({ message: "Document not found" });
       }
       
       await storage.deleteDocument(id);
