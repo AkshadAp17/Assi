@@ -14,12 +14,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Serve uploaded files
-  app.use('/uploads', (req, res, next) => {
-    // Add basic auth check for file access
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+  // Serve uploaded files with authentication check
+  app.use('/uploads', isAuthenticated, (req: AuthRequest, res, next) => {
     next();
   });
   
@@ -28,7 +24,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes are now handled in auth.ts
 
   // User management routes (Admin only)
-  app.get('/api/users', isAuthenticated, requireAdmin, async (req, res) => {
+  app.get('/api/users', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -38,7 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/users', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.post('/api/users', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
       const user = await storage.createUser(userData);
@@ -52,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/users/:id/role', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.patch('/api/users/:id/role', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const { role } = req.body;
@@ -69,7 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/users/:id', isAuthenticated, requireAdmin, async (req: any, res) => {
+  app.delete('/api/users/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       await storage.deleteUser(id);

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { storage } from '../storage';
+import type { User } from '@shared/schema';
 
 export interface AuthRequest extends Request {
-  user: any; // This will be set by our auth middleware
-  dbUser?: any;
+  user?: User; // This will be set by our auth middleware
+  dbUser?: User;
 }
 
 export const requireRole = (roles: string[]) => {
