@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Link } from "wouter";
 import { Plus, Gamepad2, Users, Calendar, FileText, X, Menu, CheckCircle, Pause, Play } from "lucide-react";
 import type { ProjectWithDetails } from "@shared/schema";
@@ -267,53 +268,23 @@ export default function Projects() {
                       </div>
                       <div className="flex items-center space-x-2">
                         {user.role === 'admin' && (
-                          <div className="flex opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-x-1">
-                            {project.status !== 'active' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => updateProjectStatusMutation.mutate({ 
-                                  projectId: project.id, 
-                                  status: 'active' 
-                                })}
-                                disabled={updateProjectStatusMutation.isPending}
-                                className="text-green-500 hover:text-green-600 hover:bg-green-50 rounded-full h-7 w-7 p-0"
-                                title="Mark as Active"
-                              >
-                                ▶
-                              </Button>
-                            )}
-                            {project.status !== 'on_hold' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => updateProjectStatusMutation.mutate({ 
-                                  projectId: project.id, 
-                                  status: 'on_hold' 
-                                })}
-                                disabled={updateProjectStatusMutation.isPending}
-                                className="text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-full h-7 w-7 p-0"
-                                title="Put On Hold"
-                              >
-                                ⏸
-                              </Button>
-                            )}
-                            {project.status !== 'completed' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => updateProjectStatusMutation.mutate({ 
-                                  projectId: project.id, 
-                                  status: 'completed' 
-                                })}
-                                disabled={updateProjectStatusMutation.isPending}
-                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-7 w-7 p-0"
-                                title="Mark as Completed"
-                              >
-                                ✓
-                              </Button>
-                            )}
-                          </div>
+                          <Select
+                            value={project.status}
+                            onValueChange={(status) => updateProjectStatusMutation.mutate({ 
+                              projectId: project.id, 
+                              status 
+                            })}
+                            disabled={updateProjectStatusMutation.isPending}
+                          >
+                            <SelectTrigger className="w-24 h-8 text-xs opacity-70 group-hover:opacity-100 transition-opacity duration-200">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Active</SelectItem>
+                              <SelectItem value="on_hold">Hold</SelectItem>
+                              <SelectItem value="completed">Complete</SelectItem>
+                            </SelectContent>
+                          </Select>
                         )}
                         {canDeleteProjects && (
                           <Button
@@ -338,58 +309,7 @@ export default function Projects() {
                         </Button>
                       </Link>
                       
-                      {user.role === 'admin' && (
-                        <div className="flex space-x-2">
-                          {project.status !== 'completed' && (
-                            <Button
-                              onClick={() => updateProjectStatusMutation.mutate({ 
-                                projectId: project.id, 
-                                status: 'completed' 
-                              })}
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300 font-medium"
-                              data-testid={`button-complete-project-${project.id}`}
-                              disabled={updateProjectStatusMutation.isPending}
-                            >
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                              Complete
-                            </Button>
-                          )}
-                          {project.status !== 'on_hold' && project.status !== 'completed' && (
-                            <Button
-                              onClick={() => updateProjectStatusMutation.mutate({ 
-                                projectId: project.id, 
-                                status: 'on_hold' 
-                              })}
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300 font-medium"
-                              data-testid={`button-hold-project-${project.id}`}
-                              disabled={updateProjectStatusMutation.isPending}
-                            >
-                              <Pause className="h-4 w-4 mr-1" />
-                              Hold
-                            </Button>
-                          )}
-                          {project.status === 'on_hold' && (
-                            <Button
-                              onClick={() => updateProjectStatusMutation.mutate({ 
-                                projectId: project.id, 
-                                status: 'active' 
-                              })}
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-medium"
-                              data-testid={`button-activate-project-${project.id}`}
-                              disabled={updateProjectStatusMutation.isPending}
-                            >
-                              <Play className="h-4 w-4 mr-1" />
-                              Activate
-                            </Button>
-                          )}
-                        </div>
-                      )}
+
                     </div>
                   </CardContent>
                 </Card>
