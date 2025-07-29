@@ -108,6 +108,8 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
   });
 
   const onSubmit = (data: CreateUserForm) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
     createUserMutation.mutate(data);
   };
 
@@ -214,7 +216,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger data-testid="select-user-role">
                         <SelectValue placeholder="Select a role" />
@@ -244,6 +246,11 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 type="submit"
                 disabled={createUserMutation.isPending}
                 data-testid="button-submit-create-user"
+                onClick={(e) => {
+                  console.log("Button clicked");
+                  console.log("Form valid:", form.formState.isValid);
+                  console.log("Form errors:", form.formState.errors);
+                }}
               >
                 {createUserMutation.isPending ? "Creating..." : "Add User"}
               </Button>
