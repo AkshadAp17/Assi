@@ -349,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "Project not found" });
         }
         
-        if (project.projectLeadId !== assignedBy && project.createdBy !== assignedBy) {
+        if (project.projectLeadId !== assignedBy && project.createdBy.id !== assignedBy) {
           return res.status(403).json({ message: "You can only assign users to projects you lead or created" });
         }
 
