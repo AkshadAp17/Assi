@@ -153,4 +153,23 @@ export const storage = {
   async deleteDocument(id: string): Promise<void> {
     await mongoStorage.deleteDocument(id);
   },
+
+  // Dashboard stats method
+  async getDashboardStats(): Promise<any> {
+    const users = await mongoStorage.getAllUsers();
+    const projects = await mongoStorage.getAllProjects();
+    
+    const activeProjects = projects.filter(p => p.status === 'active').length;
+    const completedProjects = projects.filter(p => p.status === 'completed').length;
+    const totalUsers = users.length;
+    const totalDocuments = projects.reduce((sum, p) => sum + (p._count?.documents || 0), 0);
+
+    return {
+      totalProjects: projects.length,
+      activeProjects,
+      completedProjects,
+      totalUsers,
+      totalDocuments,
+    };
+  },
 };
