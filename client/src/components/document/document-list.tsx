@@ -61,12 +61,29 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
     },
   });
 
-  const handleDownload = (documentId: string, fileName: string) => {
-    const downloadUrl = `/api/documents/${documentId}/download`;
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = fileName;
-    link.click();
+  const handleDownload = async (documentId: string, fileName: string) => {
+    try {
+      const downloadUrl = `/api/documents/${documentId}/download`;
+      
+      // Use window.open instead of creating a link to prevent multiple downloads
+      const newWindow = window.open(downloadUrl, '_blank');
+      
+      // If popup is blocked, fallback to direct navigation
+      if (!newWindow) {
+        window.location.href = downloadUrl;
+      }
+      
+      toast({
+        title: "Download Started",
+        description: `Downloading ${fileName}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Could not download the file",
+        variant: "destructive",
+      });
+    }
   };
 
   const formatFileSize = (bytes: number) => {

@@ -100,27 +100,30 @@ export default function Projects() {
   const canDeleteProjects = user.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
       <Sidebar />
       <div className="pl-64">
         <div className="p-8">
-          <div className="mb-8 flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900" data-testid="text-projects-title">
-                Projects
-              </h1>
-              <p className="text-gray-600">Manage your game development projects</p>
+          <div className="mb-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl opacity-10"></div>
+            <div className="relative p-6 rounded-2xl backdrop-blur-sm border border-white/20 flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent" data-testid="text-projects-title">
+                  Game Development Projects
+                </h1>
+                <p className="text-gray-600 text-lg mt-1">Manage and track your creative projects</p>
+              </div>
+              {canCreateProjects && (
+                <Button
+                  onClick={() => setShowCreateDialog(true)}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2"
+                  data-testid="button-create-project"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span>Create New Project</span>
+                </Button>
+              )}
             </div>
-            {canCreateProjects && (
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="flex items-center space-x-2"
-                data-testid="button-create-project"
-              >
-                <Plus className="h-4 w-4" />
-                <span>New Project</span>
-              </Button>
-            )}
           </div>
 
           {/* Project Grid */}
@@ -138,87 +141,100 @@ export default function Projects() {
               ))
             ) : projects && projects.length > 0 ? (
               projects.map((project) => (
-                <Card key={project.id} className="project-card" data-testid={`project-card-${project.id}`}>
-                  <CardContent className="p-6">
+                <Card key={project.id} className="group relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2" data-testid={`project-card-${project.id}`}>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100/50 to-purple-100/50 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
+                  <CardContent className="p-6 relative">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                        <Gamepad2 className="h-5 w-5 text-primary" />
+                      <div className="relative">
+                        <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <Gamepad2 className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                       </div>
                       <Badge
-                        className={getStatusColor(project.status)}
+                        className={`${getStatusColor(project.status)} shadow-sm font-medium`}
                         data-testid={`badge-project-status-${project.id}`}
                       >
                         {project.status}
                       </Badge>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2" data-testid={`text-project-name-${project.id}`}>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors" data-testid={`text-project-name-${project.id}`}>
                       {project.name}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4" data-testid={`text-project-description-${project.id}`}>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2" data-testid={`text-project-description-${project.id}`}>
                       {project.description || 'No description provided'}
                     </p>
                     
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 flex items-center">
-                          <Calendar className="h-4 w-4 mr-1" />
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between items-center text-sm bg-gray-50 rounded-lg p-2">
+                        <span className="text-gray-500 flex items-center font-medium">
+                          <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
                           Deadline
                         </span>
-                        <span className="font-medium text-gray-900" data-testid={`text-project-deadline-${project.id}`}>
+                        <span className="font-semibold text-gray-900" data-testid={`text-project-deadline-${project.id}`}>
                           {formatDeadline(project.deadline)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500 flex items-center">
-                          <Users className="h-4 w-4 mr-1" />
+                      <div className="flex justify-between items-center text-sm bg-gray-50 rounded-lg p-2">
+                        <span className="text-gray-500 flex items-center font-medium">
+                          <Users className="h-4 w-4 mr-2 text-green-500" />
                           Team Size
                         </span>
-                        <span className="font-medium text-gray-900" data-testid={`text-project-team-size-${project.id}`}>
+                        <span className="font-semibold text-gray-900" data-testid={`text-project-team-size-${project.id}`}>
                           {project._count.assignments} members
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-sm bg-gray-50 rounded-lg p-2">
+                        <span className="text-gray-500 flex items-center font-medium">
+                          <FileText className="h-4 w-4 mr-2 text-purple-500" />
+                          Documents
+                        </span>
+                        <span className="font-semibold text-gray-900">
+                          {project._count.documents} files
                         </span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                       <div className="flex -space-x-2">
                         {project.assignments.slice(0, 3).map((assignment, index) => (
-                          <Avatar key={assignment.user.id} className="h-6 w-6 border-2 border-white">
+                          <Avatar key={assignment.user.id} className="h-7 w-7 border-2 border-white shadow-sm">
                             <AvatarImage 
                               src={assignment.user.profileImageUrl || undefined} 
                               alt={`${assignment.user.firstName || assignment.user.email}`}
                             />
-                            <AvatarFallback className="text-xs">
+                            <AvatarFallback className="text-xs bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
                               {(assignment.user.firstName?.[0] || assignment.user.email?.[0] || 'U').toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                         ))}
                         {project._count.assignments > 3 && (
-                          <div className="h-6 w-6 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center">
-                            <span className="text-xs text-gray-600">+{project._count.assignments - 3}</span>
+                          <div className="h-7 w-7 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center shadow-sm">
+                            <span className="text-xs text-gray-600 font-medium">+{project._count.assignments - 3}</span>
                           </div>
                         )}
                       </div>
-                      <div className="flex space-x-2">
-                        <Link href={`/projects/${project.id}`}>
-                          <Button variant="ghost" size="sm" data-testid={`button-view-project-${project.id}`}>
-                            View Details
-                          </Button>
-                        </Link>
-                        {canDeleteProjects && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteProjectMutation.mutate(project.id)}
-                            disabled={deleteProjectMutation.isPending}
-                            className="text-red-600 hover:text-red-700"
-                            data-testid={`button-delete-project-${project.id}`}
-                          >
-                            Delete
-                          </Button>
-                        )}
-                      </div>
+                      {canDeleteProjects && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteProjectMutation.mutate(project.id)}
+                          disabled={deleteProjectMutation.isPending}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 p-0"
+                          data-testid={`button-delete-project-${project.id}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
+                    
+                    <Link href={`/projects/${project.id}`}>
+                      <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105" data-testid={`button-view-project-${project.id}`}>
+                        <span>Open Project</span>
+                        <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               ))

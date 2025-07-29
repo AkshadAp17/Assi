@@ -81,56 +81,85 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
       <Sidebar />
       <div className="pl-64">
         <div className="p-8">
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900" data-testid="text-welcome">
-              {getGreeting()}
-            </h1>
-            <p className="text-gray-600">Here's what's happening with your projects today.</p>
+          {/* Welcome Header with Gradient */}
+          <div className="mb-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl opacity-10"></div>
+            <div className="relative p-8 rounded-2xl backdrop-blur-sm border border-white/20">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent" data-testid="text-welcome">
+                {getGreeting()}
+              </h1>
+              <p className="text-gray-600 text-lg mt-2">Here's what's happening with your projects today.</p>
+              <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
+                <span className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  System Online
+                </span>
+                <span>Role: {user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Stats Cards */}
+          {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatsCard
-              icon={<Folder className="h-5 w-5 text-blue-600" />}
-              title="Active Projects"
-              value={statsLoading ? "..." : stats?.activeProjects.toString() || "0"}
-              bgColor="bg-blue-100"
-              data-testid="stats-active-projects"
-            />
-            <StatsCard
-              icon={<Users className="h-5 w-5 text-green-600" />}
-              title="Team Members"
-              value={statsLoading ? "..." : stats?.teamMembers.toString() || "0"}
-              bgColor="bg-green-100"
-              data-testid="stats-team-members"
-            />
-            <StatsCard
-              icon={<Clock className="h-5 w-5 text-orange-600" />}
-              title="Due This Week"
-              value={statsLoading ? "..." : stats?.dueThisWeek.toString() || "0"}
-              bgColor="bg-orange-100"
-              data-testid="stats-due-this-week"
-            />
-            <StatsCard
-              icon={<FileText className="h-5 w-5 text-purple-600" />}
-              title="Total Documents"
-              value={statsLoading ? "..." : stats?.totalDocuments.toString() || "0"}
-              bgColor="bg-purple-100"
-              data-testid="stats-total-documents"
-            />
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-active-projects">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <Folder className="h-8 w-8 text-blue-100" />
+                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.activeProjects.toString() || "0"}</span>
+                </div>
+                <p className="text-blue-100 font-medium">Active Projects</p>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-team-members">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <Users className="h-8 w-8 text-green-100" />
+                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.teamMembers.toString() || "0"}</span>
+                </div>
+                <p className="text-green-100 font-medium">Team Members</p>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-due-this-week">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <Clock className="h-8 w-8 text-orange-100" />
+                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.dueThisWeek.toString() || "0"}</span>
+                </div>
+                <p className="text-orange-100 font-medium">Due This Week</p>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-total-documents">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-2">
+                  <FileText className="h-8 w-8 text-purple-100" />
+                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.totalDocuments.toString() || "0"}</span>
+                </div>
+                <p className="text-purple-100 font-medium">Total Documents</p>
+              </div>
+            </div>
           </div>
 
-          {/* Recent Projects */}
-          <Card className="mb-8">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Recent Projects</CardTitle>
+          {/* Enhanced Recent Projects */}
+          <Card className="mb-8 shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-gray-50 to-gray-100 rounded-t-2xl border-b">
+              <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <Gamepad2 className="h-6 w-6 text-indigo-600" />
+                Recent Projects
+              </CardTitle>
               <Link href="/projects">
-                <Button variant="ghost" size="sm" data-testid="button-view-all-projects">
-                  View all
+                <Button variant="ghost" size="sm" className="hover:bg-indigo-100 text-indigo-600 font-medium" data-testid="button-view-all-projects">
+                  View all →
                 </Button>
               </Link>
             </CardHeader>
@@ -145,35 +174,51 @@ export default function Dashboard() {
                 </div>
               ) : recentProjects && recentProjects.length > 0 ? (
                 <div className="space-y-4">
-                  {recentProjects.map((project) => (
+                  {recentProjects.map((project, index) => (
                     <div
                       key={project.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                      className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-white to-gray-50 p-4 border border-gray-200 hover:border-indigo-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
                       data-testid={`project-card-${project.id}`}
                     >
-                      <div className="flex items-center space-x-4">
-                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                          <Gamepad2 className="h-5 w-5 text-primary" />
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-100/30 to-purple-100/30 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-300"></div>
+                      <div className="relative flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="relative">
+                            <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                              <Gamepad2 className="h-6 w-6" />
+                            </div>
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors" data-testid={`text-project-name-${project.id}`}>
+                              {project.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1" data-testid={`text-project-description-${project.id}`}>
+                              {project.description || 'No description available'}
+                            </p>
+                            <div className="flex items-center mt-2 space-x-4 text-xs text-gray-500">
+                              <span className="flex items-center">
+                                <Users className="h-3 w-3 mr-1" />
+                                {project._count.assignments} members
+                              </span>
+                              <span className="flex items-center">
+                                <FileText className="h-3 w-3 mr-1" />
+                                {project._count.documents} docs
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900" data-testid={`text-project-name-${project.id}`}>
-                            {project.name}
-                          </h3>
-                          <p className="text-sm text-gray-500" data-testid={`text-project-description-${project.id}`}>
-                            {project.description || 'No description'}
+                        <div className="text-right">
+                          <Badge
+                            className={`${getStatusColor(project.status)} shadow-sm`}
+                            data-testid={`badge-project-status-${project.id}`}
+                          >
+                            {project.status}
+                          </Badge>
+                          <p className="text-xs text-gray-500 mt-2 font-medium" data-testid={`text-project-deadline-${project.id}`}>
+                            Due {formatDeadline(project.deadline)}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge
-                          className={getStatusColor(project.status)}
-                          data-testid={`badge-project-status-${project.id}`}
-                        >
-                          {project.status}
-                        </Badge>
-                        <p className="text-sm text-gray-500 mt-1" data-testid={`text-project-deadline-${project.id}`}>
-                          Due {formatDeadline(project.deadline)}
-                        </p>
                       </div>
                     </div>
                   ))}
