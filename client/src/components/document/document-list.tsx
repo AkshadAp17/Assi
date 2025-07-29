@@ -138,42 +138,31 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
   return (
     <div className="space-y-3">
       {documents.map((doc, index) => (
-        <div key={doc.id} className="bg-gradient-to-r from-white to-gray-50/50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center space-x-4 flex-1 min-w-0">
-              <div className="h-12 w-12 bg-gradient-to-br from-purple-100 to-violet-200 rounded-lg flex items-center justify-center">
+        <div key={doc.id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-sm transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3 flex-1 min-w-0">
+              <div className="h-10 w-10 bg-gradient-to-br from-purple-100 to-violet-200 rounded-lg flex items-center justify-center flex-shrink-0">
                 {getFileIcon(doc.mimeType)}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-semibold text-gray-900 truncate mb-1">
+                <h4 className="text-sm font-medium text-gray-900 truncate">
                   {doc.originalName}
                 </h4>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <span className="flex items-center gap-1.5">
-                    <User className="h-3 w-3" />
-                    <span className="font-medium">{doc.uploadedBy}</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(doc.createdAt)}
-                  </span>
-                  <Badge variant="outline" className="text-xs">
-                    {formatFileSize(doc.fileSize)}
-                  </Badge>
-                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formatFileSize(doc.fileSize)}
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleDownload(doc.id, doc.originalName)}
-                className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 border-purple-200 hover:border-purple-300 rounded-lg transition-all duration-200 hover:shadow-sm"
+                className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 border-gray-200 hover:border-purple-300 rounded-lg h-8 px-3"
                 data-testid={`button-download-${doc.id}`}
               >
-                <Download className="h-4 w-4 mr-1.5" />
-                <span className="hidden sm:inline">Download</span>
+                <Download className="h-4 w-4" />
               </Button>
               
               {(user?.role === 'admin' || user?.role === 'project_lead') && (
@@ -182,11 +171,10 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
                   size="sm"
                   onClick={() => deleteDocumentMutation.mutate(doc.id)}
                   disabled={deleteDocumentMutation.isPending}
-                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 border-red-200 hover:border-red-300 rounded-lg transition-all duration-200 hover:shadow-sm"
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 border-gray-200 hover:border-red-300 rounded-lg h-8 px-3"
                   data-testid={`button-delete-${doc.id}`}
                 >
-                  <Trash2 className="h-4 w-4 mr-1.5" />
-                  <span className="hidden sm:inline">Delete</span>
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               )}
             </div>

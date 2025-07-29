@@ -88,8 +88,9 @@ Preferred communication style: Simple, everyday language.
 ✓ **User Management Enhanced**: Fixed admin user display to show "All projects" instead of "0 projects", prevented admin role editing and deletion
 ✓ **Application Running**: Server successfully starts on port 5000 with proper client/server separation
 ✓ **Form Styling Enhanced**: Upgraded Create User and Create Project dialog forms with modern glass-morphism design, gradient backgrounds, and improved input styling
-✓ **Project Status Management**: Added admin capability to toggle project status between active/completed with status update buttons in project cards
-✓ **Document Display Improved**: Enhanced document list with better empty state design and improved visual hierarchy
+✓ **Project Status Management**: Added admin capability to manage project status with three options (active/completed/on_hold) using intuitive status buttons in project cards
+✓ **Document Display Improved**: Simplified document list showing only essential information (filename and size) with cleaner button layout and better visual hierarchy
+✓ **Team Management Enhanced**: Added helpful text for project leads explaining their ability to assign developers to projects
 ✓ **Security Maintained**: All authentication and security practices preserved during migration
 
 ### UI/UX Enhancement & Complete Visual Overhaul

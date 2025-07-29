@@ -249,20 +249,53 @@ export default function Projects() {
                       </div>
                       <div className="flex items-center space-x-2">
                         {user.role === 'admin' && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => updateProjectStatusMutation.mutate({ 
-                              projectId: project.id, 
-                              status: project.status === 'active' ? 'completed' : 'active' 
-                            })}
-                            disabled={updateProjectStatusMutation.isPending}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-8 w-8 p-0"
-                            data-testid={`button-toggle-status-${project.id}`}
-                            title={project.status === 'active' ? 'Mark as Completed' : 'Mark as Active'}
-                          >
-                            {project.status === 'active' ? '✓' : '↻'}
-                          </Button>
+                          <div className="flex opacity-0 group-hover:opacity-100 transition-opacity duration-200 space-x-1">
+                            {project.status !== 'active' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateProjectStatusMutation.mutate({ 
+                                  projectId: project.id, 
+                                  status: 'active' 
+                                })}
+                                disabled={updateProjectStatusMutation.isPending}
+                                className="text-green-500 hover:text-green-600 hover:bg-green-50 rounded-full h-7 w-7 p-0"
+                                title="Mark as Active"
+                              >
+                                ▶
+                              </Button>
+                            )}
+                            {project.status !== 'on_hold' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateProjectStatusMutation.mutate({ 
+                                  projectId: project.id, 
+                                  status: 'on_hold' 
+                                })}
+                                disabled={updateProjectStatusMutation.isPending}
+                                className="text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-full h-7 w-7 p-0"
+                                title="Put On Hold"
+                              >
+                                ⏸
+                              </Button>
+                            )}
+                            {project.status !== 'completed' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => updateProjectStatusMutation.mutate({ 
+                                  projectId: project.id, 
+                                  status: 'completed' 
+                                })}
+                                disabled={updateProjectStatusMutation.isPending}
+                                className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-7 w-7 p-0"
+                                title="Mark as Completed"
+                              >
+                                ✓
+                              </Button>
+                            )}
+                          </div>
                         )}
                         {canDeleteProjects && (
                           <Button

@@ -318,7 +318,12 @@ export default function ProjectDetails() {
                   <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
                     <Users className="h-4 w-4 text-white" />
                   </div>
-                  <span className="text-gray-900 font-semibold">Team Members</span>
+                  <div>
+                    <span className="text-gray-900 font-semibold">Team Members</span>
+                    {user.role === 'project_lead' && (
+                      <p className="text-xs text-gray-500 mt-1">Assign developers to your project</p>
+                    )}
+                  </div>
                 </CardTitle>
                 {canAssignUsers && availableUsers.length > 0 && (
                   <div className="flex items-center space-x-2">
