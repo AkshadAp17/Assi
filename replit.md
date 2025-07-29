@@ -75,6 +75,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 29, 2025)
 
+### Project Assignment Logic Fix (Current)
+✓ **Fixed Admin Assignment Logic**: Admins can now only assign Project Leads to projects (removed Developer assignment capability from admin view)
+✓ **Maintained Project Lead Powers**: Project Leads can still assign Developers to their projects
+✓ **Cleaned Role Separation**: Clear distinction between admin powers (strategic) and project lead powers (operational)
+
 ### Migration & Role Management Updates  
 ✓ **Successfully completed migration** from Replit Agent to standard Replit environment
 ✓ **Role Management Updates**: Removed admin role from user creation and role editing options - maintains single admin system

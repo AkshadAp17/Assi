@@ -228,9 +228,9 @@ export default function ProjectDetails() {
       return false;
     }
     
-    // Admins can assign both Project Leads and Developers
+    // Admins can only assign Project Leads to projects
     if (user.role === 'admin') {
-      return u.role === 'project_lead' || u.role === 'developer';
+      return u.role === 'project_lead';
     }
     
     // Project Leads can only assign Developers
