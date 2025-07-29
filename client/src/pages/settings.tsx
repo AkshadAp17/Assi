@@ -157,65 +157,77 @@ export default function Settings() {
               </CardContent>
             </Card>
 
-            {/* Change Password */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span>Change Password</span>
+            {/* Enhanced Change Password */}
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-b border-gray-100">
+                <CardTitle className="flex items-center space-x-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-gray-900 font-semibold">Change Password</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-4">
-                  <div>
-                    <Label htmlFor="currentPassword">Current Password</Label>
+              <CardContent className="p-6">
+                <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="currentPassword" className="text-sm font-semibold text-gray-700">Current Password</Label>
                     <Input
                       id="currentPassword"
                       type="password"
                       {...register("currentPassword")}
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-200"
+                      placeholder="Enter your current password"
                       data-testid="input-current-password"
                     />
                     {errors.currentPassword && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-red-600 flex items-center mt-2">
+                        <span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center mr-2">!</span>
                         {errors.currentPassword.message}
                       </p>
                     )}
                   </div>
                   
-                  <div>
-                    <Label htmlFor="newPassword">New Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword" className="text-sm font-semibold text-gray-700">New Password</Label>
                     <Input
                       id="newPassword"
                       type="password"
                       {...register("newPassword")}
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-200"
+                      placeholder="Enter your new password"
                       data-testid="input-new-password"
                     />
                     {errors.newPassword && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-red-600 flex items-center mt-2">
+                        <span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center mr-2">!</span>
                         {errors.newPassword.message}
                       </p>
                     )}
                   </div>
                   
-                  <div>
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">Confirm New Password</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
                       {...register("confirmPassword")}
-                      className="mt-1"
+                      className="h-12 border-2 border-gray-200 rounded-xl focus:border-orange-400 focus:ring-orange-400/20 transition-all duration-200"
+                      placeholder="Confirm your new password"
                       data-testid="input-confirm-password"
                     />
                     {errors.confirmPassword && (
-                      <p className="text-sm text-red-600 mt-1">
+                      <p className="text-sm text-red-600 flex items-center mt-2">
+                        <span className="w-4 h-4 bg-red-100 rounded-full flex items-center justify-center mr-2">!</span>
                         {errors.confirmPassword.message}
                       </p>
                     )}
                   </div>
                   
-                  <Button type="submit" data-testid="button-update-password">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                    data-testid="button-update-password"
+                  >
                     Update Password
                   </Button>
                 </form>

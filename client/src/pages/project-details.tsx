@@ -276,7 +276,7 @@ export default function ProjectDetails() {
                   <div>
                     <p className="text-sm text-gray-500 font-medium">DEADLINE</p>
                     <p className="font-bold text-gray-900" data-testid="text-project-deadline">
-                      {formatDate(project.deadline)}
+                      {formatDate(project.deadline?.toString() || null)}
                     </p>
                   </div>
                 </div>
@@ -386,15 +386,9 @@ export default function ProjectDetails() {
                                   : assignment.user.email?.split('@')[0] || 'User'
                                 }
                               </p>
-                              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                assignment.user.role === 'project_lead' 
-                                  ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                                  : 'bg-green-100 text-green-800 border border-green-200'
-                              }`}>
-                                <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                                  assignment.user.role === 'project_lead' ? 'bg-blue-500' : 'bg-green-500'
-                                }`}></div>
-                                {assignment.user.role === 'project_lead' ? 'PROJECT LEAD' : 'DEVELOPER'}
+                              <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                <div className="w-1.5 h-1.5 rounded-full mr-1.5 bg-blue-500"></div>
+                                PROJECT LEAD
                               </div>
                             </div>
                             <p className="text-sm text-gray-600" data-testid={`text-user-email-${assignment.user.id}`}>
@@ -442,14 +436,15 @@ export default function ProjectDetails() {
                   <Button
                     size="sm"
                     onClick={() => setShowUploadDialog(true)}
+                    className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
                     data-testid="button-upload-document"
                   >
-                    <Upload className="h-4 w-4 mr-1" />
-                    Upload
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Document
                   </Button>
                 )}
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <DocumentList projectId={project.id} documents={project.documents} />
               </CardContent>
             </Card>

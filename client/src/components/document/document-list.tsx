@@ -123,93 +123,72 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
 
   if (documents.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Project Documents
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium mb-2">No documents uploaded yet</p>
-            <p className="text-sm">
-              {user?.role === 'developer' 
-                ? "Documents will appear here once they're uploaded by project leads or admins."
-                : "Upload your first document to get started with project documentation."
-              }
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="text-center py-12">
+        <div className="h-16 w-16 bg-gradient-to-br from-purple-100 to-violet-200 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FileText className="h-8 w-8 text-purple-500" />
+        </div>
+        <p className="text-gray-500 font-medium">No documents uploaded</p>
+        <p className="text-sm text-gray-400 mt-1">Upload documents to share with your team</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Project Documents ({documents.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {documents.map((doc, index) => (
-            <div key={doc.id}>
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center space-x-4 flex-1 min-w-0">
-                  {getFileIcon(doc.mimeType)}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {doc.originalName}
-                    </h4>
-                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        Uploaded by {doc.uploadedBy}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDate(doc.createdAt)}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {formatFileSize(doc.fileSize)}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownload(doc.id, doc.originalName)}
-                    data-testid={`button-download-${doc.id}`}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  
-                  {(user?.role === 'admin' || user?.role === 'project_lead') && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => deleteDocumentMutation.mutate(doc.id)}
-                      disabled={deleteDocumentMutation.isPending}
-                      data-testid={`button-delete-${doc.id}`}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  )}
+    <div className="space-y-3">
+      {documents.map((doc, index) => (
+        <div key={doc.id} className="bg-gradient-to-r from-white to-gray-50/50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center space-x-4 flex-1 min-w-0">
+              <div className="h-12 w-12 bg-gradient-to-br from-purple-100 to-violet-200 rounded-lg flex items-center justify-center">
+                {getFileIcon(doc.mimeType)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-gray-900 truncate mb-1">
+                  {doc.originalName}
+                </h4>
+                <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <span className="flex items-center gap-1.5">
+                    <User className="h-3 w-3" />
+                    <span className="font-medium">{doc.uploadedBy}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-3 w-3" />
+                    {formatDate(doc.createdAt)}
+                  </span>
+                  <Badge variant="outline" className="text-xs">
+                    {formatFileSize(doc.fileSize)}
+                  </Badge>
                 </div>
               </div>
-              
-              {index < documents.length - 1 && <Separator className="my-2" />}
             </div>
-          ))}
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDownload(doc.id, doc.originalName)}
+                className="text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200"
+                data-testid={`button-download-${doc.id}`}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              
+              {(user?.role === 'admin' || user?.role === 'project_lead') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteDocumentMutation.mutate(doc.id)}
+                  disabled={deleteDocumentMutation.isPending}
+                  className="text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                  data-testid={`button-delete-${doc.id}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      ))}
+    </div>
   );
 }

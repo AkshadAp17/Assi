@@ -51,18 +51,18 @@ export function Sidebar() {
   if (!user) return null;
 
   return (
-    <div className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 shadow-2xl">
+    <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-lg">
       <div className="flex flex-col h-full">
         {/* Enhanced Header */}
-        <div className="relative h-20 px-4 flex items-center justify-center border-b border-slate-700/50">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 backdrop-blur-sm"></div>
+        <div className="relative h-20 px-4 flex items-center justify-center border-b border-gray-200">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50"></div>
           <div className="relative flex items-center space-x-3">
-            <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg ring-2 ring-white/20">
+            <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
               <Gamepad2 className="text-white h-5 w-5" />
             </div>
             <div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">GameDev PM</span>
-              <p className="text-xs text-gray-400 -mt-1">Project Manager</p>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">GameDev PM</span>
+              <p className="text-xs text-gray-500 -mt-1">Project Manager</p>
             </div>
           </div>
         </div>
@@ -71,15 +71,15 @@ export function Sidebar() {
         <div className="px-4 py-2">
           <div className={cn(
             "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold",
-            user.role === 'admin' ? "bg-red-500/20 text-red-300 border border-red-500/30" :
-            user.role === 'project_lead' ? "bg-blue-500/20 text-blue-300 border border-blue-500/30" :
-            "bg-green-500/20 text-green-300 border border-green-500/30"
+            user.role === 'admin' ? "bg-red-100 text-red-800 border border-red-200" :
+            user.role === 'project_lead' ? "bg-blue-100 text-blue-800 border border-blue-200" :
+            "bg-green-100 text-green-800 border border-green-200"
           )}>
             <div className={cn(
               "w-2 h-2 rounded-full mr-2",
-              user.role === 'admin' ? "bg-red-400" :
-              user.role === 'project_lead' ? "bg-blue-400" :
-              "bg-green-400"
+              user.role === 'admin' ? "bg-red-500" :
+              user.role === 'project_lead' ? "bg-blue-500" :
+              "bg-green-500"
             )}></div>
             {user.role === 'project_lead' ? 'Project Lead' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
           </div>
@@ -93,10 +93,10 @@ export function Sidebar() {
               <Link key={item.name} href={item.href}>
                 <div
                   className={cn(
-                    "group relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 transform hover:scale-105",
+                    "group relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300",
                     isActive
-                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/25"
-                      : "text-gray-300 hover:text-white hover:bg-white/10 backdrop-blur-sm"
+                      ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                   )}
                   data-testid={item.testId}
                 >
@@ -107,21 +107,21 @@ export function Sidebar() {
                     <div className={cn(
                       "flex items-center justify-center w-8 h-8 rounded-lg mr-3 transition-all duration-200",
                       isActive 
-                        ? "bg-white/20 shadow-sm" 
-                        : "bg-gray-700/50 group-hover:bg-white/10"
+                        ? "bg-white shadow-sm" 
+                        : "bg-gray-100 group-hover:bg-gray-200"
                     )}>
                       <item.icon 
                         className={cn(
                           "h-4 w-4 transition-all duration-200",
                           isActive 
-                            ? "text-white" 
-                            : "text-gray-400 group-hover:text-white"
+                            ? "text-indigo-600" 
+                            : "text-gray-500 group-hover:text-gray-700"
                         )} 
                       />
                     </div>
                     <span className="flex-1">{item.name}</span>
                     {isActive && (
-                      <div className="w-2 h-2 bg-white rounded-full opacity-75"></div>
+                      <div className="w-2 h-2 bg-indigo-600 rounded-full"></div>
                     )}
                   </div>
                 </div>
@@ -131,10 +131,10 @@ export function Sidebar() {
         </nav>
         
         {/* Enhanced User Profile */}
-        <div className="border-t border-slate-700/50 p-4 bg-slate-800/50">
+        <div className="border-t border-gray-200 p-4 bg-gray-50">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <Avatar className="h-10 w-10 ring-2 ring-indigo-500/30 shadow-lg">
+              <Avatar className="h-10 w-10 ring-2 ring-indigo-200 shadow-lg">
                 <AvatarImage 
                   src={user.profileImageUrl || undefined}
                   alt={user.firstName || user.email || 'User'}
@@ -143,10 +143,10 @@ export function Sidebar() {
                   {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-800"></div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate" data-testid="text-sidebar-user-name">
+              <p className="text-sm font-semibold text-gray-900 truncate" data-testid="text-sidebar-user-name">
                 {user.firstName && user.lastName
                   ? `${user.firstName} ${user.lastName}`
                   : user.email?.split('@')[0] || 'User'
@@ -155,9 +155,9 @@ export function Sidebar() {
               <div className="flex items-center space-x-2">
                 <div className={cn(
                   "px-2 py-1 rounded-md text-xs font-medium",
-                  user.role === 'admin' ? "bg-red-500/20 text-red-300" :
-                  user.role === 'project_lead' ? "bg-blue-500/20 text-blue-300" :
-                  "bg-green-500/20 text-green-300"
+                  user.role === 'admin' ? "bg-red-100 text-red-800" :
+                  user.role === 'project_lead' ? "bg-blue-100 text-blue-800" :
+                  "bg-green-100 text-green-800"
                 )}>
                   {user.role === 'project_lead' ? 'Project Lead' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </div>
@@ -167,7 +167,7 @@ export function Sidebar() {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="text-gray-400 hover:text-white hover:bg-red-500/20 rounded-lg transition-all duration-200"
+              className="text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
               data-testid="button-sidebar-logout"
             >
               <LogOut className="h-4 w-4" />
