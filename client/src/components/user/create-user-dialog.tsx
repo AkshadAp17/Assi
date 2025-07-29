@@ -33,6 +33,7 @@ import { z } from "zod";
 
 const createUserSchema = insertUserSchema.extend({
   role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -51,6 +52,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
       email: "",
       firstName: "",
       lastName: "",
+      password: "",
       role: "developer",
     },
   });
@@ -185,6 +187,26 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter password"
+                      {...field}
+                      value={field.value ?? ""}
+                      data-testid="input-user-password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

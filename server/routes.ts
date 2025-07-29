@@ -7,6 +7,7 @@ import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware
 import { upload } from "./middleware/upload";
 import { insertUserSchema, insertProjectSchema, insertProjectAssignmentSchema } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import path from "path";
 import fs from "fs";
 
@@ -36,13 +37,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/users', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
     try {
-      const userData = insertUserSchema.parse(req.body);
-      const user = await storage.createUser(userData);
+      // Parse the data first with password
+      const { password, ...userData } = req.body;
+      
+      if (!password) {
+        return res.status(400).json({ message: "Password is required" });
+      }
+      
+      // Hash the password
+      const passwordHash = await bcrypt.hash(password, 10);
+      
+      // Create the final user data with passwordHash
+      const finalUserData = {
+        ...userData,
+        passwordHash,
+      };
+      
+      // Create a schema for validation that includes passwordHash
+      const createUserSchema = z.object({
+        email: z.string().email(),
+        firstName: z.string().min(1),
+        lastName: z.string().min(1),
+        passwordHash: z.string().min(1),
+        role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
+        profileImageUrl: z.string().nullable().optional(),
+      });
+      
+      const validatedData = createUserSchema.parse(finalUserData);
+      
+      const user = await storage.createUser(validatedData);
       res.status(201).json(user);
     } catch (error) {
       console.error("Error creating user:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid user data", errors: error.errors });
+      }
+      if (error.message && error.message.includes('unique')) {
+        return res.status(400).json({ message: "A user with this email already exists" });
       }
       res.status(500).json({ message: "Failed to create user" });
     }
