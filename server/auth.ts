@@ -102,8 +102,8 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Logout route
-  app.post('/api/auth/logout', (req: Request, res: Response) => {
+  // Logout route (support both GET and POST)
+  const logoutHandler = (req: Request, res: Response) => {
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({ message: 'Could not log out' });
@@ -111,7 +111,10 @@ export async function setupAuth(app: Express) {
       res.clearCookie('connect.sid');
       res.json({ message: 'Logged out successfully' });
     });
-  });
+  };
+  
+  app.post('/api/auth/logout', logoutHandler);
+  app.get('/api/logout', logoutHandler);
 
   // Get current user route
   app.get('/api/auth/user', async (req: Request, res: Response) => {

@@ -1,11 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
+import { AuthRequest } from '../auth';
 import { storage } from '../storage';
-import type { User } from '@shared/schema';
-
-export interface AuthRequest extends Request {
-  user?: User; // This will be set by our auth middleware
-  dbUser?: User;
-}
 
 export const requireRole = (roles: string[]) => {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -19,7 +14,7 @@ export const requireRole = (roles: string[]) => {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
 
-      req.dbUser = req.user;
+      // User is already available in req.user
       next();
     } catch (error) {
       res.status(500).json({ message: 'Error checking permissions' });
