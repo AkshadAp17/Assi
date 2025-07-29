@@ -29,7 +29,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/users', (req, res, next) => {
     isAuthenticated(req as AuthRequest, res, (err) => {
       if (err) return next(err);
-      requireAdmin(req as AuthRequest, res, next);
+      requireProjectLead(req as AuthRequest, res, next);
     });
   }, async (req: AuthRequest, res) => {
     try {
