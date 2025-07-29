@@ -1,284 +1,156 @@
-import { eq, and, desc } from "drizzle-orm";
-import { db } from "./db";
-import * as schema from "@shared/schema";
-import type { 
-  User, 
-  CreateUser, 
-  UpsertUser,
-  Project, 
-  InsertProject,
-  ProjectAssignment, 
-  InsertProjectAssignment,
-  Document, 
-  InsertDocument,
-  ProjectWithDetails,
-  UserWithStats 
-} from "@shared/schema";
+// MongoDB storage implementation - replaces Drizzle/PostgreSQL
+import { mongoStorage } from './mongodb-storage';
+import bcrypt from 'bcryptjs';
 
-export type { 
-  User, 
-  CreateUser, 
-  UpsertUser,
-  Project, 
-  InsertProject,
-  ProjectAssignment, 
-  InsertProjectAssignment,
-  Document, 
-  InsertDocument,
-  ProjectWithDetails,
-  UserWithStats 
+// Types for compatibility with existing code
+export type User = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  profileImageUrl: string | null;
+  passwordHash: string;
+  role: 'admin' | 'project_lead' | 'developer';
+  createdAt: Date | null;
+  updatedAt: Date | null;
 };
 
-export interface IStorage {
+export type CreateUser = {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  passwordHash: string;
+  role?: 'admin' | 'project_lead' | 'developer';
+  profileImageUrl?: string;
+};
+
+export type UpsertUser = CreateUser & { id?: string };
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string | null;
+  deadline: Date | null;
+  status: 'active' | 'completed' | 'on_hold';
+  createdBy: string;
+  projectLeadId: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export type InsertProject = {
+  name: string;
+  description?: string;
+  deadline?: Date | null;
+  status?: 'active' | 'completed' | 'on_hold';
+  createdBy: string;
+  projectLeadId?: string;
+};
+
+export type ProjectAssignment = {
+  id: string;
+  projectId: string;
+  userId: string;
+  assignedBy: string;
+  createdAt: Date | null;
+};
+
+export type InsertProjectAssignment = {
+  projectId: string;
+  userId: string;
+  assignedBy: string;
+};
+
+export type Document = {
+  id: string;
+  projectId: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+  createdAt: Date | null;
+};
+
+export type InsertDocument = {
+  projectId: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+};
+
+export const storage = {
   // User methods
-  createUser(user: CreateUser): Promise<User>;
-  getUserById(id: string): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  getAllUsers(): Promise<UserWithStats[]>;
-  updateUser(id: string, updates: Partial<UpsertUser>): Promise<void>;
-  deleteUser(id: string): Promise<void>;
-
-  // Project methods
-  createProject(project: InsertProject): Promise<Project>;
-  getAllProjects(): Promise<ProjectWithDetails[]>;
-  getProjectById(id: string): Promise<ProjectWithDetails | null>;
-  updateProject(id: string, updates: Partial<InsertProject>): Promise<void>;
-  deleteProject(id: string): Promise<void>;
-
-  // Project assignment methods
-  assignUserToProject(assignment: InsertProjectAssignment): Promise<ProjectAssignment>;
-  removeUserFromProject(projectId: string, userId: string): Promise<void>;
-  getUserProjects(userId: string): Promise<ProjectWithDetails[]>;
-
-  // Document methods
-  createDocument(document: InsertDocument): Promise<Document>;
-  getProjectDocuments(projectId: string): Promise<Document[]>;
-  deleteDocument(id: string): Promise<void>;
-}
-
-class DrizzleStorage implements IStorage {
   async createUser(userData: CreateUser): Promise<User> {
-    const [user] = await db.insert(schema.users).values(userData).returning();
-    return user;
-  }
+    return await mongoStorage.createUser(userData);
+  },
 
   async getUserById(id: string): Promise<User | null> {
-    const [user] = await db.select().from(schema.users).where(eq(schema.users.id, id));
-    return user || null;
-  }
+    return await mongoStorage.getUserById(id);
+  },
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
-    return user || null;
-  }
+    return await mongoStorage.getUserByEmail(email);
+  },
 
-  async getAllUsers(): Promise<UserWithStats[]> {
-    const users = await db.query.users.findMany({
-      with: {
-        projectAssignments: true,
-      },
-    });
-
-    return users.map(user => ({
-      ...user,
-      _count: {
-        projectAssignments: user.projectAssignments.length,
-      },
-    }));
-  }
+  async getAllUsers(): Promise<any[]> {
+    return await mongoStorage.getAllUsers();
+  },
 
   async updateUser(id: string, updates: Partial<UpsertUser>): Promise<void> {
-    await db.update(schema.users).set(updates).where(eq(schema.users.id, id));
-  }
+    await mongoStorage.updateUser(id, updates);
+  },
 
   async deleteUser(id: string): Promise<void> {
-    await db.delete(schema.users).where(eq(schema.users.id, id));
-  }
+    await mongoStorage.deleteUser(id);
+  },
 
+  // Project methods
   async createProject(projectData: InsertProject): Promise<Project> {
-    const [project] = await db.insert(schema.projects).values(projectData).returning();
-    return project;
-  }
+    return await mongoStorage.createProject(projectData);
+  },
 
-  async getAllProjects(): Promise<ProjectWithDetails[]> {
-    const projects = await db.query.projects.findMany({
-      with: {
-        createdBy: {
-          columns: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        projectLead: {
-          columns: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        assignments: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-                profileImageUrl: true,
-              },
-            },
-          },
-        },
-        documents: true,
-      },
-      orderBy: [desc(schema.projects.createdAt)],
-    });
+  async getAllProjects(): Promise<any[]> {
+    return await mongoStorage.getAllProjects();
+  },
 
-    return projects.map(project => ({
-      ...project,
-      _count: {
-        assignments: project.assignments.length,
-        documents: project.documents.length,
-      },
-    }));
-  }
-
-  async getProjectById(id: string): Promise<ProjectWithDetails | null> {
-    const project = await db.query.projects.findFirst({
-      where: eq(schema.projects.id, id),
-      with: {
-        createdBy: {
-          columns: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        projectLead: {
-          columns: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-        assignments: {
-          with: {
-            user: {
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-                profileImageUrl: true,
-              },
-            },
-          },
-        },
-        documents: true,
-      },
-    });
-
-    if (!project) return null;
-
-    return {
-      ...project,
-      _count: {
-        assignments: project.assignments.length,
-        documents: project.documents.length,
-      },
-    };
-  }
+  async getProjectById(id: string): Promise<any | null> {
+    return await mongoStorage.getProjectById(id);
+  },
 
   async updateProject(id: string, updates: Partial<InsertProject>): Promise<void> {
-    await db.update(schema.projects).set(updates).where(eq(schema.projects.id, id));
-  }
+    await mongoStorage.updateProject(id, updates);
+  },
 
   async deleteProject(id: string): Promise<void> {
-    await db.delete(schema.projects).where(eq(schema.projects.id, id));
-  }
+    await mongoStorage.deleteProject(id);
+  },
 
+  // Project assignment methods
   async assignUserToProject(assignmentData: InsertProjectAssignment): Promise<ProjectAssignment> {
-    const [assignment] = await db.insert(schema.projectAssignments).values(assignmentData).returning();
-    return assignment;
-  }
+    return await mongoStorage.assignUserToProject(assignmentData);
+  },
 
   async removeUserFromProject(projectId: string, userId: string): Promise<void> {
-    await db.delete(schema.projectAssignments)
-      .where(
-        and(
-          eq(schema.projectAssignments.projectId, projectId),
-          eq(schema.projectAssignments.userId, userId)
-        )
-      );
-  }
+    await mongoStorage.removeUserFromProject(projectId, userId);
+  },
 
-  async getUserProjects(userId: string): Promise<ProjectWithDetails[]> {
-    const assignments = await db.query.projectAssignments.findMany({
-      where: eq(schema.projectAssignments.userId, userId),
-      with: {
-        project: {
-          with: {
-            createdBy: {
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
-            projectLead: {
-              columns: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
-            assignments: {
-              with: {
-                user: {
-                  columns: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                    email: true,
-                    profileImageUrl: true,
-                  },
-                },
-              },
-            },
-            documents: true,
-          },
-        },
-      },
-    });
+  async getUserProjects(userId: string): Promise<any[]> {
+    return await mongoStorage.getUserProjects(userId);
+  },
 
-    return assignments.map(assignment => ({
-      ...assignment.project,
-      _count: {
-        assignments: assignment.project.assignments.length,
-        documents: assignment.project.documents.length,
-      },
-    }));
-  }
-
+  // Document methods
   async createDocument(documentData: InsertDocument): Promise<Document> {
-    const [document] = await db.insert(schema.documents).values(documentData).returning();
-    return document;
-  }
+    return await mongoStorage.createDocument(documentData);
+  },
 
   async getProjectDocuments(projectId: string): Promise<Document[]> {
-    return await db.select().from(schema.documents).where(eq(schema.documents.projectId, projectId));
-  }
+    return await mongoStorage.getProjectDocuments(projectId);
+  },
 
   async deleteDocument(id: string): Promise<void> {
-    await db.delete(schema.documents).where(eq(schema.documents.id, id));
-  }
-}
-
-export const storage = new DrizzleStorage();
+    await mongoStorage.deleteDocument(id);
+  },
+};

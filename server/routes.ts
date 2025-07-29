@@ -114,8 +114,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid role" });
       }
 
-      const user = await storage.updateUserRole(id, role);
-      res.json(user);
+      await storage.updateUser(id, { role });
+      res.json({ message: "User role updated successfully" });
     } catch (error) {
       console.error("Error updating user role:", error);
       res.status(500).json({ message: "Failed to update user role" });
@@ -155,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Get current user to verify password
-      const user = await storage.getUser(userId);
+      const user = await storage.getUserById(userId);
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -168,7 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Hash new password and update
       const newPasswordHash = await bcrypt.hash(newPassword, 10);
-      await storage.updateUserPassword(userId, newPasswordHash);
+      await storage.updateUser(userId, { passwordHash: newPasswordHash });
 
       res.json({ message: "Password updated successfully" });
     } catch (error) {
@@ -187,14 +187,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let projects;
       if (req.user!.role === 'developer') {
         // Developers see only their assigned projects
-        projects = await storage.getProjectsByUser(userId);
+        projects = await storage.getUserProjects(userId);
       } else if (req.user!.role === 'project_lead') {
         // Project leads see projects they lead + projects they're assigned to
-        const ledProjects = await storage.getProjectsByLead(userId);
-        const assignedProjects = await storage.getProjectsByUser(userId);
+        const assignedProjects = await storage.getUserProjects(userId);
+        // Get projects where user is the lead
+        const allProjects = await storage.getAllProjects();
+        const ledProjects = allProjects.filter(p => p.projectLeadId === userId);
         // Combine and deduplicate
-        const allProjects = [...ledProjects, ...assignedProjects];
-        projects = allProjects.filter((project, index, self) => 
+        const combinedProjects = [...ledProjects, ...assignedProjects];
+        projects = combinedProjects.filter((project, index, self) => 
           index === self.findIndex(p => p.id === project.id)
         );
       } else {
@@ -216,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { id } = req.params;
       const userId = req.user!.id;
       
-      const project = await storage.getProject(id);
+      const project = await storage.getProjectById(id);
       if (!project) {
         return res.status(404).json({ message: "Project not found" });
       }
@@ -298,7 +300,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if user can update this project
       if (req.user!.role === 'project_lead') {
-        const project = await storage.getProject(id);
+        const project = await storage.getProjectById(id);
         if (!project) {
           return res.status(404).json({ message: "Project not found" });
         }
@@ -432,7 +434,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check if project lead exists and has correct role
-      const projectLead = await storage.getUser(projectLeadId);
+      const projectLead = await storage.getUserById(projectLeadId);
       if (!projectLead) {
         return res.status(404).json({ message: "Project lead not found" });
       }
@@ -460,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if developer has access to this project
       if (req.user!.role === 'developer') {
-        const project = await storage.getProject(id);
+        const project = await storage.getProjectById(id);
         if (!project) {
           return res.status(404).json({ message: "Project not found" });
         }
