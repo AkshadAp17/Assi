@@ -155,7 +155,7 @@ export const isAuthenticated = async (req: AuthRequest, res: Response, next: Nex
     const userId = (req.session as any)?.userId;
     
     if (!userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Not authenticated' });
     }
 
     const user = await storage.getUser(userId);
