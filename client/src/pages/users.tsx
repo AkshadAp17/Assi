@@ -159,68 +159,68 @@ export default function Users() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <Sidebar />
-      <div className={`transition-all duration-300 ${isMobile ? 'pl-0' : 'pl-64'}`}>
-        {/* Mobile menu button */}
-        {isMobile && (
-          <div className="lg:hidden fixed top-4 left-4 z-50">
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-white/90 backdrop-blur-sm shadow-lg border-gray-200"
-              onClick={() => {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                if (sidebar && overlay) {
-                  sidebar.classList.remove('-translate-x-full');
-                  overlay.classList.remove('hidden');
-                }
-              }}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-        <div className={`p-4 lg:p-8 ${isMobile ? 'pt-16' : ''}`}>
-          {/* Enhanced Header */}
-          <div className="mb-8 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
-            <div className="space-y-1">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent" data-testid="text-users-title">
-                User Management
-              </h1>
-              <p className="text-gray-600 font-medium">Manage your team members and their roles</p>
-            </div>
-            <Button
-              onClick={() => setShowCreateDialog(true)}
-              className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-lg"
-              data-testid="button-create-user"
-            >
-              <UserPlus className="h-5 w-5" />
-              <span className="font-semibold">Add User</span>
-            </Button>
-          </div>
+      
+      {/* Mobile/Desktop hamburger menu button */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-white/90 backdrop-blur-sm shadow-lg border-gray-200"
+          onClick={() => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && overlay) {
+              sidebar.classList.remove('-translate-x-full');
+              overlay.classList.remove('hidden');
+            }
+          }}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
 
-          {/* Enhanced Card with Modern Design */}
-          <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-b border-gray-100 pb-6">
-              <CardTitle className="flex items-center space-x-3 text-xl">
-                <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <UsersIcon className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-gray-900">Team Members</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {usersLoading ? (
-                <div className="space-y-4 p-6">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-100 rounded-xl"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : users && users.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <Table>
+      {/* Full width content */}
+      <div className="p-4 lg:p-8 pt-16">
+        {/* Enhanced Header */}
+        <div className="mb-8 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent" data-testid="text-users-title">
+              User Management
+            </h1>
+            <p className="text-gray-600 font-medium">Manage your team members and their roles</p>
+          </div>
+          <Button
+            onClick={() => setShowCreateDialog(true)}
+            className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-lg"
+            data-testid="button-create-user"
+          >
+            <UserPlus className="h-5 w-5" />
+            <span className="font-semibold">Add User</span>
+          </Button>
+        </div>
+
+        {/* Enhanced Card with Modern Design */}
+        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm rounded-2xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-b border-gray-100 pb-6">
+            <CardTitle className="flex items-center space-x-3 text-xl">
+              <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <UsersIcon className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-bold text-gray-900">Team Members</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {usersLoading ? (
+              <div className="space-y-4 p-6">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-100 rounded-xl"></div>
+                  </div>
+                ))}
+              </div>
+            ) : users && users.length > 0 ? (
+              <div className="overflow-x-auto">
+                <Table>
                     <TableHeader>
                       <TableRow className="border-b-2 border-gray-100 hover:bg-transparent">
                         <TableHead className="font-semibold text-gray-700 py-4 px-6">User</TableHead>
@@ -328,27 +328,26 @@ export default function Users() {
                       ))}
                     </TableBody>
                   </Table>
+              </div>
+            ) : (
+              <div className="text-center py-16 px-6">
+                <div className="h-20 w-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <UsersIcon className="h-10 w-10 text-gray-400" />
                 </div>
-              ) : (
-                <div className="text-center py-16 px-6">
-                  <div className="h-20 w-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <UsersIcon className="h-10 w-10 text-gray-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">No team members yet</h3>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">Get started by adding your first team member to begin collaborating on projects.</p>
-                  <Button
-                    onClick={() => setShowCreateDialog(true)}
-                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-lg"
-                    data-testid="button-create-first-user"
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Add Your First User
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">No team members yet</h3>
+                <p className="text-gray-500 mb-6 max-w-md mx-auto">Get started by adding your first team member to begin collaborating on projects.</p>
+                <Button
+                  onClick={() => setShowCreateDialog(true)}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-lg"
+                  data-testid="button-create-first-user"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Your First User
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {showCreateDialog && (
