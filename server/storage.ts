@@ -120,13 +120,7 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
-  async createUser(userData: Omit<UpsertUser, 'id'>): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .returning();
-    return user;
-  }
+
 
   async updateUserRole(userId: string, role: 'admin' | 'project_lead' | 'developer'): Promise<User> {
     const [user] = await db
@@ -401,6 +395,13 @@ export class DatabaseStorage implements IStorage {
     const allProjects = await this.getAllProjects();
     
     return allProjects.filter(project => projectIds.includes(project.id));
+  }
+
+  async getProjectsByLead(userId: string): Promise<ProjectWithDetails[]> {
+    const allProjects = await this.getAllProjects();
+    return allProjects.filter(project => 
+      project.projectLeadId === userId || project.createdBy === userId
+    );
   }
 
   async createProject(projectData: InsertProject): Promise<Project> {

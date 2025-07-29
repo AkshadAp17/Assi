@@ -222,7 +222,7 @@ export default function ProjectDetails() {
   const canDeleteDocuments = user.role === 'admin' || user.role === 'project_lead';
 
   const availableUsers = users?.filter(u => 
-    u.role === 'project_lead' && !project.assignments.some(assignment => assignment.userId === u.id)
+    (u.role === 'project_lead' || u.role === 'developer') && !project.assignments.some(assignment => assignment.userId === u.id)
   ) || [];
 
   return (
