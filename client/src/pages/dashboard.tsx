@@ -81,25 +81,39 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Sidebar />
       <div className="pl-64">
         <div className="p-8">
-          {/* Welcome Header with Gradient */}
-          <div className="mb-8 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl opacity-10"></div>
-            <div className="relative p-8 rounded-2xl backdrop-blur-sm border border-white/20">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent" data-testid="text-welcome">
-                {getGreeting()}
-              </h1>
-              <p className="text-gray-600 text-lg mt-2">Here's what's happening with your projects today.</p>
-              <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
-                <span className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                  System Online
-                </span>
-                <span>Role: {user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+          {/* Enhanced Welcome Header */}
+          <div className="mb-8 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-indigo-600/5 rounded-3xl"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full -translate-y-8 translate-x-8"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-200/20 to-indigo-200/20 rounded-full translate-y-4 -translate-x-4"></div>
+            <div className="relative p-8 rounded-3xl backdrop-blur-sm border border-white/40 shadow-xl bg-white/60">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Gamepad2 className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent" data-testid="text-welcome">
+                      GameDev Project Manager
+                    </h1>
+                    <p className="text-xl font-medium text-gray-700 mt-1">{getGreeting()}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-green-700">System Online</span>
+                  </div>
+                  <Badge variant="outline" className="bg-white/80 border-blue-200 text-blue-700">
+                    {user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </Badge>
+                </div>
               </div>
+              <p className="text-gray-600 text-lg">Manage your game development projects with ease. Track progress, assign team members, and collaborate effectively.</p>
             </div>
           </div>
 
