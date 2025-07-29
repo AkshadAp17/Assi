@@ -321,6 +321,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route to assign project lead to existing project
+  app.patch('/api/projects/:id/assign-lead', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+    try {
+      const { id: projectId } = req.params;
+      const { projectLeadId } = req.body;
+      
+      if (!projectLeadId) {
+        return res.status(400).json({ message: "Project lead ID is required" });
+      }
+
+      // Check if project lead exists and has correct role
+      const projectLead = await storage.getUser(projectLeadId);
+      if (!projectLead) {
+        return res.status(404).json({ message: "Project lead not found" });
+      }
+
+      if (projectLead.role !== 'project_lead' && projectLead.role !== 'admin') {
+        return res.status(400).json({ message: "User must be a project lead or admin" });
+      }
+
+      // Update the project's project lead
+      const updatedProject = await storage.updateProject(projectId, { projectLeadId });
+      res.json(updatedProject);
+    } catch (error: any) {
+      console.error("Error assigning project lead:", error);
+      res.status(500).json({ message: "Failed to assign project lead" });
+    }
+  });
+
   // Document routes
   app.get('/api/projects/:id/documents', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
     try {
