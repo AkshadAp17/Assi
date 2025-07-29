@@ -221,9 +221,25 @@ export default function ProjectDetails() {
   const canUploadDocuments = user.role === 'admin' || user.role === 'project_lead';
   const canDeleteDocuments = user.role === 'admin' || user.role === 'project_lead';
 
-  const availableUsers = users?.filter(u => 
-    (u.role === 'project_lead' || u.role === 'developer') && !project.assignments.some(assignment => assignment.userId === u.id)
-  ) || [];
+  // Filter available users based on current user's role
+  const availableUsers = users?.filter(u => {
+    // Already assigned users cannot be assigned again
+    if (project.assignments.some(assignment => assignment.userId === u.id)) {
+      return false;
+    }
+    
+    // Admins can assign both Project Leads and Developers
+    if (user.role === 'admin') {
+      return u.role === 'project_lead' || u.role === 'developer';
+    }
+    
+    // Project Leads can only assign Developers
+    if (user.role === 'project_lead') {
+      return u.role === 'developer';
+    }
+    
+    return false;
+  }) || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -349,7 +365,7 @@ export default function ProjectDetails() {
                             </p>
                           </div>
                         </div>
-                        {canAssignUsers && (
+                        {canAssignUsers && assignment.user.id !== user.id && (
                           <Button
                             variant="ghost"
                             size="sm"

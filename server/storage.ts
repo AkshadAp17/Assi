@@ -15,7 +15,7 @@ import {
   type UserWithStats,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -518,7 +518,7 @@ export class DatabaseStorage implements IStorage {
         .from(projects)
         .where(
           and(
-            sql`${projects.id} = ANY(${projectIds})`,
+            inArray(projects.id, projectIds),
             eq(projects.status, 'active')
           )
         );
@@ -526,7 +526,7 @@ export class DatabaseStorage implements IStorage {
       documentsQuery = db
         .select({ count: sql<number>`cast(count(*) as int)` })
         .from(documents)
-        .where(sql`${documents.projectId} = ANY(${projectIds})`);
+        .where(inArray(documents.projectId, projectIds));
     } else {
       // For admins and project leads, count all projects
       activeProjectsQuery = db

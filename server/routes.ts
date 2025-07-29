@@ -336,15 +336,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "User ID is required" });
       }
       
-      // Check if project lead can assign to this project
+      // Get the user being assigned to check their role
+      const userToAssign = await storage.getUser(userId);
+      if (!userToAssign) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check role-based assignment permissions
       if (req.user!.role === 'project_lead') {
         const project = await storage.getProject(projectId);
         if (!project) {
           return res.status(404).json({ message: "Project not found" });
         }
         
-        if (project.projectLeadId !== assignedBy && project.createdBy.id !== assignedBy) {
+        if (project.projectLeadId !== assignedBy && project.createdBy !== assignedBy) {
           return res.status(403).json({ message: "You can only assign users to projects you lead or created" });
+        }
+
+        // Project leads can only assign developers
+        if (userToAssign.role !== 'developer') {
+          return res.status(403).json({ message: "Project leads can only assign developers to projects" });
         }
       }
       
