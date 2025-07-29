@@ -285,16 +285,23 @@ export default function ProjectDetails() {
                 {canAssignUsers && availableUsers.length > 0 && (
                   <div className="flex items-center space-x-2">
                     <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-64">
                         <SelectValue placeholder="Select user" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableUsers.map((user) => (
                           <SelectItem key={user.id} value={user.id}>
-                            {user.firstName && user.lastName 
-                              ? `${user.firstName} ${user.lastName}`
-                              : user.email
-                            }
+                            <div className="flex items-center justify-between w-full">
+                              <span>
+                                {user.firstName && user.lastName 
+                                  ? `${user.firstName} ${user.lastName}`
+                                  : user.email
+                                }
+                              </span>
+                              <Badge variant="secondary" className="ml-2 text-xs">
+                                {user.role === 'project_lead' ? 'Lead' : 'Developer'}
+                              </Badge>
+                            </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
