@@ -229,7 +229,7 @@ export class DatabaseStorage implements IStorage {
       description: result.description,
       deadline: result.deadline,
       status: result.status,
-      createdBy: typeof result.createdBy === 'string' ? result.createdBy : result.createdBy.id,
+      createdBy: typeof result.createdBy === 'string' ? result.createdBy : (result.createdBy?.id || result.createdBy),
       projectLeadId: result.projectLeadId,
       createdAt: result.createdAt,
       updatedAt: result.updatedAt

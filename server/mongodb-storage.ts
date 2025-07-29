@@ -22,7 +22,21 @@ class MongoDBStorage {
     profileImageUrl?: string;
   }) {
     await connectToDatabase();
-    const user = new User(userData);
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email: userData.email.toLowerCase() });
+    if (existingUser) {
+      throw new Error('A user with this email already exists');
+    }
+    
+    const user = new User({
+      ...userData,
+      email: userData.email.toLowerCase(),
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null
+    });
+    
     await user.save();
     return this.formatUser(user);
   }

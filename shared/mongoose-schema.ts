@@ -12,11 +12,13 @@ const userSchema = new mongoose.Schema({
   },
   firstName: {
     type: String,
-    trim: true
+    trim: true,
+    default: null
   },
   lastName: {
     type: String,
-    trim: true
+    trim: true,
+    default: null
   },
   profileImageUrl: {
     type: String,
