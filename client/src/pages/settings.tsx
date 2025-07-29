@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Settings as SettingsIcon, Shield, User } from "lucide-react";
+import { Settings as SettingsIcon, Shield, User, Menu } from "lucide-react";
 
 const passwordChangeSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -89,25 +89,45 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <Sidebar />
-      <div className="pl-64">
-        <div className="p-8">
-          <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <SettingsIcon className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent" data-testid="text-settings-title">
-                  Account Settings
-                </h1>
-                <p className="text-gray-600">Manage your account preferences and security</p>
-              </div>
+      
+      {/* Mobile/Desktop hamburger menu button */}
+      <div className="fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-white/90 backdrop-blur-sm shadow-lg border-gray-200"
+          onClick={() => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && overlay) {
+              sidebar.classList.remove('-translate-x-full');
+              overlay.classList.remove('hidden');
+            }
+          }}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Full width content */}
+      <div className="p-4 lg:p-8 pt-16">
+        <div className="mb-8">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <SettingsIcon className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent" data-testid="text-settings-title">
+                Account Settings
+              </h1>
+              <p className="text-gray-600">Manage your account preferences and security</p>
             </div>
           </div>
+        </div>
 
-          <div className="max-w-2xl space-y-6">
-            {/* Enhanced Profile Information */}
-            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+        <div className="max-w-2xl space-y-6">
+          {/* Enhanced Profile Information */}
+          <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-gray-100">
                 <CardTitle className="flex items-center space-x-3">
                   <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -259,8 +279,7 @@ export default function Settings() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

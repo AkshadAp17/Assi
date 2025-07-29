@@ -75,7 +75,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 29, 2025)
 
-### Complete Website Rebranding to PixelForge Nexus (Current)
+### UI/UX Improvements & Project Status Management (Current)
+✓ **Consistent sidebar layout**: Updated User Management and Settings pages to match dashboard layout with hidden sidebar and hamburger menu
+✓ **Project status dropdown**: Replaced 3 action icons (play/pause/checkmark) with clean dropdown menu showing Active/Hold/Complete options
+✓ **Removed duplicate buttons**: Cleaned up project cards by removing redundant status management buttons
+✓ **Mobile-responsive design**: All pages now have consistent hamburger menu functionality for mobile and desktop
+
+### Complete Website Rebranding to PixelForge Nexus
 ✓ **Full branding update**: Changed all references from GameDev to PixelForge Nexus across the application
 ✓ **Updated login page**: Changed title and branding to PixelForge Nexus with modern design
 ✓ **Updated landing page**: Changed welcome header to PixelForge Nexus branding
