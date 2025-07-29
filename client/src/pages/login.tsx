@@ -53,37 +53,53 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full blur-xl"></div>
+        <div className="absolute top-40 right-20 w-48 h-48 bg-gradient-to-br from-indigo-200/15 to-pink-200/15 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-gradient-to-br from-cyan-200/20 to-blue-200/20 rounded-full blur-xl"></div>
+        <div className="absolute bottom-40 right-10 w-24 h-24 bg-gradient-to-br from-purple-200/25 to-indigo-200/25 rounded-full blur-xl"></div>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        {/* Enhanced Header */}
         <div className="text-center">
-          <div className="flex justify-center">
-            <div className="flex items-center space-x-3 bg-white p-4 rounded-2xl shadow-lg border border-gray-100">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl">
-                <Gamepad2 className="h-8 w-8 text-white" />
+          <div className="flex justify-center mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur-lg opacity-30 scale-110"></div>
+              <div className="relative flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl">
+                <Gamepad2 className="h-10 w-10 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                GameDev PM
-              </span>
             </div>
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Welcome back
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sign in to manage your game development projects
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            GameDev Project Manager
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Sign in to your account
           </p>
         </div>
 
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Sign In
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Enter your credentials to access your dashboard
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Enhanced Login Card */}
+        <Card className="relative overflow-hidden shadow-2xl border-0 bg-white/90 backdrop-blur-xl">
+          {/* Card Background Effects */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-blue-50/30 to-purple-50/30"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-full -translate-y-16 translate-x-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-100/20 to-pink-100/20 rounded-full translate-y-12 -translate-x-12"></div>
+          
+          <div className="relative z-10">
+            <CardHeader className="space-y-1 text-center py-8">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-gray-800 mb-1">Welcome</h2>
+                <p className="text-gray-600">
+                  Manage your game development projects with ease.<br />
+                  Track progress, assign team members, and collaborate<br />
+                  effectively.
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6 px-8 pb-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -143,14 +159,15 @@ export default function Login() {
                 </Button>
               </form>
             </Form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500">
+                Need an account? Contact your administrator.
+              </p>
+            </div>
           </CardContent>
+          </div>
         </Card>
-
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Don't have access? Contact your administrator to create an account.
-          </p>
-        </div>
       </div>
     </div>
   );
