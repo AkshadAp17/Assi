@@ -36,7 +36,7 @@ const createUserSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
+  role: z.enum(['project_lead', 'developer']).default('developer'),
 });
 
 type CreateUserForm = z.infer<typeof createUserSchema>;
@@ -226,7 +226,6 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                     <SelectContent>
                       <SelectItem value="developer">Developer</SelectItem>
                       <SelectItem value="project_lead">Project Lead</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

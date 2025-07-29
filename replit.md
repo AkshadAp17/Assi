@@ -75,6 +75,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (July 29, 2025)
 
+### Migration & Role Management Updates  
+✓ **Successfully completed migration** from Replit Agent to standard Replit environment
+✓ **Role Management Updates**: Removed admin role from user creation options - admins can only assign project leads to projects
+✓ **Project Access**: All roles can now see project lists (previously restricted to developers and above)
+✓ **Session Management**: Fixed authentication session persistence issues for better user experience
+✓ **Admin Controls**: Admin users can assign project leads to specific projects, but cannot create new admin users
+
 ### Complete Admin & Project Lead System Implementation
 ✓ **Admin Powers**: Full user management with role assignment, project lead assignment, document upload
 ✓ **Project Lead Powers**: Developer assignment to projects, project creation/management, document upload  

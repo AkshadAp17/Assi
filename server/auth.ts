@@ -58,11 +58,16 @@ export async function setupAuth(app: Express) {
       // Store user in session
       (req.session as any).userId = user.id;
       
-      // Save session explicitly
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-        }
+      // Save session explicitly and wait for it
+      await new Promise<void>((resolve, reject) => {
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
       
       // Return user without password

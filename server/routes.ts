@@ -17,8 +17,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Serve uploaded files with authentication check
-  app.use('/uploads', isAuthenticated, (req: AuthRequest, res, next) => {
-    next();
+  app.use('/uploads', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
   });
   
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
@@ -26,7 +26,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes are now handled in auth.ts
 
   // User management routes (Admin only)
-  app.get('/api/users', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.get('/api/users', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
@@ -36,7 +41,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/users', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.post('/api/users', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       // Parse the data first with password
       const { password, ...userData } = req.body;
@@ -60,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: z.string().min(1),
         lastName: z.string().min(1),
         passwordHash: z.string().min(1),
-        role: z.enum(['admin', 'project_lead', 'developer']).default('developer'),
+        role: z.enum(['project_lead', 'developer']).default('developer'),
         profileImageUrl: z.string().nullable().optional(),
       });
       
@@ -90,12 +100,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/users/:id/role', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.patch('/api/users/:id/role', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const { role } = req.body;
       
-      if (!['admin', 'project_lead', 'developer'].includes(role)) {
+      if (!['project_lead', 'developer'].includes(role)) {
         return res.status(400).json({ message: "Invalid role" });
       }
 
@@ -107,7 +122,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/users/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.delete('/api/users/:id', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       await storage.deleteUser(id);
@@ -119,7 +139,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Password update route - users can update their own password
-  app.patch('/api/users/password', isAuthenticated, async (req: AuthRequest, res) => {
+  app.patch('/api/users/password', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
       const { currentPassword, newPassword } = req.body;
       const userId = req.user!.id;
@@ -155,8 +177,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Project routes - updated to show different data for project leads
-  app.get('/api/projects', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+  // Project routes - all roles can see project list
+  app.get('/api/projects', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
       const userId = req.user!.id;
       
@@ -185,7 +209,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/:id', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+  app.get('/api/projects/:id', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
@@ -218,7 +244,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Allow both admins and project leads to create projects
-  app.post('/api/projects', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
+  app.post('/api/projects', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const projectData = insertProjectSchema.parse(req.body);
       const userId = req.user!.id;
@@ -239,7 +270,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Allow project leads to update their own projects
-  app.patch('/api/projects/:id', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
+  app.patch('/api/projects/:id', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
@@ -268,7 +304,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/projects/:id', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.delete('/api/projects/:id', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       await storage.deleteProject(id);
@@ -280,7 +321,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Project assignment routes
-  app.post('/api/projects/:id/assign', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
+  app.post('/api/projects/:id/assign', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id: projectId } = req.params;
       const { userId } = req.body;
@@ -310,7 +356,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/projects/:projectId/assign/:userId', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
+  app.delete('/api/projects/:projectId/assign/:userId', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { projectId, userId } = req.params;
       await storage.removeUserFromProject(projectId, userId);
@@ -322,7 +373,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin route to assign project lead to existing project
-  app.patch('/api/projects/:id/assign-lead', isAuthenticated, requireAdmin, async (req: AuthRequest, res) => {
+  app.patch('/api/projects/:id/assign-lead', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireAdmin(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id: projectId } = req.params;
       const { projectLeadId } = req.body;
@@ -351,10 +407,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Document routes
-  app.get('/api/projects/:id/documents', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+  app.get('/api/projects/:id/documents', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const userId = req.user.id;
+      const userId = req.user!.id;
       
       // Check if developer has access to this project
       if (req.user!.role === 'developer') {
@@ -377,14 +435,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/projects/:id/documents', 
-    isAuthenticated, 
-    requireProjectLead, 
-    upload.array('files', 10), 
-    async (req: AuthRequest, res) => {
+  app.post('/api/projects/:id/documents', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, (err2) => {
+        if (err2) return next(err2);
+        upload.array('files', 10)(req, res, next);
+      });
+    });
+  }, async (req: AuthRequest, res) => {
       try {
         const { id: projectId } = req.params;
-        const userId = req.user.id;
+        const userId = req.user!.id;
         const files = req.files as Express.Multer.File[];
 
         if (!files || files.length === 0) {
@@ -413,7 +475,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   );
 
   // File download route
-  app.get('/api/documents/:id/download', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+  app.get('/api/documents/:id/download', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       const document = await storage.getDocument(id);
@@ -449,7 +513,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/documents/:id', isAuthenticated, requireProjectLead, async (req: AuthRequest, res) => {
+  app.delete('/api/documents/:id', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, (err) => {
+      if (err) return next(err);
+      requireProjectLead(req as AuthRequest, res, next);
+    });
+  }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
       
@@ -473,10 +542,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Dashboard stats route
-  app.get('/api/dashboard/stats', isAuthenticated, requireDeveloper, async (req: AuthRequest, res) => {
+  app.get('/api/dashboard/stats', (req, res, next) => {
+    isAuthenticated(req as AuthRequest, res, next);
+  }, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user.id;
-      const stats = await storage.getDashboardStats(userId, req.user.role);
+      const userId = req.user!.id;
+      const stats = await storage.getDashboardStats(userId, req.user!.role);
       res.json(stats);
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
