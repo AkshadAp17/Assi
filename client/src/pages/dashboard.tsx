@@ -119,50 +119,100 @@ export default function Dashboard() {
 
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-active-projects">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <Folder className="h-8 w-8 text-blue-100" />
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.activeProjects.toString() || "0"}</span>
+            <Card className="group relative overflow-hidden bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" data-testid="stats-active-projects">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Folder className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-600">Active Projects</p>
+                      <p className="text-2xl font-bold text-blue-800">{statsLoading ? "..." : stats?.activeProjects?.toString() || "0"}</p>
+                    </div>
+                  </div>
+                  <div className="w-16 h-16 bg-blue-200/50 rounded-full absolute -top-4 -right-4"></div>
                 </div>
-                <p className="text-blue-100 font-medium">Active Projects</p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-team-members">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <Users className="h-8 w-8 text-green-100" />
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.teamMembers.toString() || "0"}</span>
+            <Card className="group relative overflow-hidden bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" data-testid="stats-team-members">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Users className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-green-600">Team Members</p>
+                      <p className="text-2xl font-bold text-green-800">{statsLoading ? "..." : stats?.teamMembers?.toString() || "0"}</p>
+                    </div>
+                  </div>
+                  <div className="w-16 h-16 bg-green-200/50 rounded-full absolute -top-4 -right-4"></div>
                 </div>
-                <p className="text-green-100 font-medium">Team Members</p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-due-this-week">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <Clock className="h-8 w-8 text-orange-100" />
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.dueThisWeek.toString() || "0"}</span>
+            <Card className="group relative overflow-hidden bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" data-testid="stats-due-this-week">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md">
+                      <Clock className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-orange-600">Due This Week</p>
+                      <p className="text-2xl font-bold text-orange-800">{statsLoading ? "..." : stats?.dueThisWeek?.toString() || "0"}</p>
+                    </div>
+                  </div>
+                  <div className="w-16 h-16 bg-orange-200/50 rounded-full absolute -top-4 -right-4"></div>
                 </div>
-                <p className="text-orange-100 font-medium">Due This Week</p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg transform hover:scale-105 transition-all duration-200" data-testid="stats-total-documents">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -translate-y-6 translate-x-6"></div>
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <FileText className="h-8 w-8 text-purple-100" />
-                  <span className="text-2xl font-bold">{statsLoading ? "..." : stats?.totalDocuments.toString() || "0"}</span>
+            <Card className="group relative overflow-hidden bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" data-testid="stats-total-documents">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md">
+                      <FileText className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-purple-600">Documents</p>
+                      <p className="text-2xl font-bold text-purple-800">{statsLoading ? "..." : stats?.totalDocuments?.toString() || "0"}</p>
+                    </div>
+                  </div>
+                  <div className="w-16 h-16 bg-purple-200/50 rounded-full absolute -top-4 -right-4"></div>
                 </div>
-                <p className="text-purple-100 font-medium">Total Documents</p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Welcome Message Card */}
+          <Card className="mb-8 bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50 border-blue-200 shadow-lg">
+            <CardContent className="p-8">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to GameDev Project Manager</h2>
+                <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                  Manage your game development projects with ease. Track progress, assign team members, and collaborate effectively to bring your gaming vision to life.
+                </p>
+                <div className="mt-6 flex justify-center space-x-4">
+                  <Link href="/projects">
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                      View Projects
+                    </Button>
+                  </Link>
+                  {(user.role === 'admin' || user.role === 'project_lead') && (
+                    <Link href="/users">
+                      <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                        Manage Team
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Enhanced Recent Projects */}
           <Card className="mb-8 shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur-sm">
@@ -230,7 +280,7 @@ export default function Dashboard() {
                             {project.status}
                           </Badge>
                           <p className="text-xs text-gray-500 mt-2 font-medium" data-testid={`text-project-deadline-${project.id}`}>
-                            Due {formatDeadline(project.deadline)}
+                            Due {formatDeadline(project.deadline as string)}
                           </p>
                         </div>
                       </div>
