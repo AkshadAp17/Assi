@@ -17,9 +17,22 @@ export function Sidebar() {
   const { user } = useAuth();
   const [location] = useLocation();
 
-  const handleLogout = () => {
-    // Force redirect to logout endpoint and then to login
-    window.location.replace("/api/logout");
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      // Force redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback: force redirect anyway
+      window.location.href = '/login';
+    }
   };
 
   const navigation = [

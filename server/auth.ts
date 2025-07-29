@@ -117,11 +117,21 @@ export async function setupAuth(app: Express) {
   const logoutHandler = (req: Request, res: Response) => {
     req.session.destroy((err) => {
       if (err) {
+        console.error('Logout error:', err);
         return res.status(500).json({ message: 'Could not log out' });
       }
-      res.clearCookie('connect.sid');
-      // Always redirect to login page
-      res.redirect('/login');
+      res.clearCookie('connect.sid', { 
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+      });
+      // For API calls, return JSON; for browser requests, redirect
+      if (req.headers.accept?.includes('application/json')) {
+        res.json({ message: 'Logged out successfully' });
+      } else {
+        res.redirect('/login');
+      }
     });
   };
   
