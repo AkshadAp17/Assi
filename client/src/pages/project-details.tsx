@@ -299,7 +299,7 @@ export default function ProjectDetails() {
                                 }
                               </span>
                               <Badge variant="secondary" className="ml-2 text-xs">
-                                Lead
+                                {user.role === 'project_lead' ? 'Lead' : 'Developer'}
                               </Badge>
                             </div>
                           </SelectItem>
