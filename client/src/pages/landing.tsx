@@ -11,7 +11,7 @@ export default function Landing() {
           <div className="mx-auto h-12 w-12 bg-primary rounded-lg flex items-center justify-center mb-4">
             <Gamepad2 className="text-white text-xl" />
           </div>
-          <h2 className="text-3xl font-bold text-gray-900">GameDev Project Manager</h2>
+          <h2 className="text-3xl font-bold text-gray-900">PixelForge Nexus</h2>
           <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
         </div>
         

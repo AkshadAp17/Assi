@@ -13,9 +13,9 @@ export async function sendWelcomeEmail(email: string, password: string, firstNam
   const mailOptions = {
     from: process.env.EMAIL_USER || 'akshadapastambh37@gmail.com',
     to: email,
-    subject: 'Welcome to GameDev Project Manager',
+    subject: 'Welcome to PixelForge Nexus',
     html: `
-      <h2>Welcome to GameDev Project Manager!</h2>
+      <h2>Welcome to PixelForge Nexus!</h2>
       <p>Hello ${firstName},</p>
       <p>Your account has been created successfully. Here are your login credentials:</p>
       <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
@@ -23,8 +23,8 @@ export async function sendWelcomeEmail(email: string, password: string, firstNam
         <p><strong>Temporary Password:</strong> ${password}</p>
       </div>
       <p>Please log in and change your password as soon as possible.</p>
-      <p>You can access the system at: <a href="${process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'your-domain.com'}">GameDev Project Manager</a></p>
-      <p>Best regards,<br>GameDev Project Manager Team</p>
+      <p>You can access the system at: <a href="${process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.replit.app` : 'your-domain.com'}">PixelForge Nexus</a></p>
+      <p>Best regards,<br>PixelForge Nexus Team</p>
     `
   };
 

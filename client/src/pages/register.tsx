@@ -29,13 +29,7 @@ export default function Register() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterForm) => {
-      return await apiRequest("/api/auth/register", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      return await apiRequest("POST", "/api/auth/register", data);
     },
     onSuccess: () => {
       toast({
@@ -64,7 +58,7 @@ export default function Register() {
           <div className="flex justify-center">
             <div className="flex items-center space-x-2">
               <Gamepad2 className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">GameDev PM</span>
+              <span className="text-2xl font-bold text-gray-900">PixelForge Nexus</span>
             </div>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">

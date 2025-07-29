@@ -74,7 +74,7 @@ export default function Login() {
             </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            GameDev Project Manager
+            PixelForge Nexus
           </h1>
           <p className="text-gray-600 text-lg">
             Sign in to your account
