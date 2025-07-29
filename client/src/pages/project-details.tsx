@@ -222,7 +222,7 @@ export default function ProjectDetails() {
   const canDeleteDocuments = user.role === 'admin' || user.role === 'project_lead';
 
   const availableUsers = users?.filter(u => 
-    !project.assignments.some(assignment => assignment.userId === u.id)
+    u.role === 'project_lead' && !project.assignments.some(assignment => assignment.userId === u.id)
   ) || [];
 
   return (
@@ -299,7 +299,7 @@ export default function ProjectDetails() {
                                 }
                               </span>
                               <Badge variant="secondary" className="ml-2 text-xs">
-                                {user.role === 'project_lead' ? 'Lead' : 'Developer'}
+                                Lead
                               </Badge>
                             </div>
                           </SelectItem>

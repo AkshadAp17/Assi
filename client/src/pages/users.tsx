@@ -242,7 +242,6 @@ export default function Users() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
                               <SelectItem value="project_lead">Project Lead</SelectItem>
                               <SelectItem value="developer">Developer</SelectItem>
                             </SelectContent>

@@ -77,10 +77,11 @@ Preferred communication style: Simple, everyday language.
 
 ### Migration & Role Management Updates  
 ✓ **Successfully completed migration** from Replit Agent to standard Replit environment
-✓ **Role Management Updates**: Removed admin role from user creation options - admins can only assign project leads to projects
+✓ **Role Management Updates**: Removed admin role from user creation and role editing options - maintains single admin system
+✓ **Project Assignment Restriction**: Only Project Leads can be assigned to projects (removed Developer assignment capability)
 ✓ **Project Access**: All roles can now see project lists (previously restricted to developers and above)
 ✓ **Session Management**: Fixed authentication session persistence issues for better user experience
-✓ **Admin Controls**: Admin users can assign project leads to specific projects, but cannot create new admin users
+✓ **User Selection Enhancement**: Added role badges (Lead/Developer) in project assignment dropdown for clarity
 
 ### Complete Admin & Project Lead System Implementation
 ✓ **Admin Powers**: Full user management with role assignment, project lead assignment, document upload
