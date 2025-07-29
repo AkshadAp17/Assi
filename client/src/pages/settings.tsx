@@ -87,50 +87,67 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <Sidebar />
       <div className="pl-64">
         <div className="p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900" data-testid="text-settings-title">
-              Account Settings
-            </h1>
-            <p className="text-gray-600">Manage your account preferences and security</p>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <SettingsIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent" data-testid="text-settings-title">
+                  Account Settings
+                </h1>
+                <p className="text-gray-600">Manage your account preferences and security</p>
+              </div>
+            </div>
           </div>
 
           <div className="max-w-2xl space-y-6">
-            {/* Profile Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span>Profile Information</span>
+            {/* Enhanced Profile Information */}
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-gray-100">
+                <CardTitle className="flex items-center space-x-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-gray-900 font-semibold">Profile Information</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-4 mb-6">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage 
-                      src={user.profileImageUrl || undefined}
-                      alt={user.firstName || user.email || 'User'}
-                    />
-                    <AvatarFallback className="text-lg">
-                      {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-lg font-medium" data-testid="text-user-name">
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-6 mb-6">
+                  <div className="relative">
+                    <Avatar className="h-20 w-20 ring-4 ring-indigo-100 shadow-lg">
+                      <AvatarImage 
+                        src={user.profileImageUrl || undefined}
+                        alt={user.firstName || user.email || 'User'}
+                      />
+                      <AvatarFallback className="text-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold">
+                        {(user.firstName?.[0] || user.email?.[0] || 'U').toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white shadow-sm"></div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2" data-testid="text-user-name">
                       {user.firstName && user.lastName
                         ? `${user.firstName} ${user.lastName}`
-                        : user.email
+                        : user.email?.split('@')[0] || 'User'
                       }
                     </h3>
-                    <p className="text-sm text-gray-500" data-testid="text-user-email">
+                    <p className="text-sm text-gray-600 mb-3" data-testid="text-user-email">
                       {user.email}
                     </p>
-                    <p className="text-sm text-gray-500" data-testid="text-user-role">
-                      {formatRole(user.role)}
-                    </p>
+                    <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-200" data-testid="text-user-role">
+                      <div className={`w-2 h-2 rounded-full mr-2 ${
+                        user.role === 'admin' ? 'bg-red-500' :
+                        user.role === 'project_lead' ? 'bg-blue-500' :
+                        'bg-green-500'
+                      }`}></div>
+                      <span className="text-gray-800">{formatRole(user.role)}</span>
+                    </div>
                   </div>
                 </div>
                 <p className="text-sm text-gray-600">

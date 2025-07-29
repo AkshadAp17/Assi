@@ -242,61 +242,83 @@ export default function ProjectDetails() {
   }) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <Sidebar />
       <div className="pl-64">
         <div className="p-8">
-          {/* Project Header */}
+          {/* Enhanced Project Header */}
           <div className="mb-8">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Gamepad2 className="h-6 w-6 text-primary" />
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="h-16 w-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg ring-4 ring-indigo-100">
+                <Gamepad2 className="h-8 w-8 text-white" />
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900" data-testid="text-project-name">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2" data-testid="text-project-name">
                   {project.name}
                 </h1>
-                <p className="text-gray-600" data-testid="text-project-description">
+                <p className="text-gray-600 text-lg" data-testid="text-project-description">
                   {project.description || 'No description provided'}
                 </p>
               </div>
-              <Badge className={getStatusColor(project.status)} data-testid="badge-project-status">
-                {project.status}
-              </Badge>
+              <div className="flex items-center space-x-3">
+                <Badge className={`${getStatusColor(project.status)} px-4 py-2 text-sm font-semibold shadow-sm`} data-testid="badge-project-status">
+                  {project.status.replace('_', ' ').toUpperCase()}
+                </Badge>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">Deadline:</span>
-                <span className="font-medium" data-testid="text-project-deadline">
-                  {formatDate(project.deadline)}
-                </span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">DEADLINE</p>
+                    <p className="font-bold text-gray-900" data-testid="text-project-deadline">
+                      {formatDate(project.deadline)}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">Team Size:</span>
-                <span className="font-medium" data-testid="text-project-team-size">
-                  {project._count.assignments} members
-                </span>
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <Users className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">TEAM SIZE</p>
+                    <p className="font-bold text-gray-900" data-testid="text-project-team-size">
+                      {project._count.assignments} members
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <FileText className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">Documents:</span>
-                <span className="font-medium" data-testid="text-project-document-count">
-                  {project._count.documents} files
-                </span>
+              <div className="bg-white/70 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                    <FileText className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">DOCUMENTS</p>
+                    <p className="font-bold text-gray-900" data-testid="text-project-document-count">
+                      {project._count.documents} files
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Team Members */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Team Members</span>
+            {/* Enhanced Team Members */}
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-b border-gray-100 flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center space-x-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                    <Users className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-gray-900 font-semibold">Team Members</span>
                 </CardTitle>
                 {canAssignUsers && availableUsers.length > 0 && (
                   <div className="flex items-center space-x-2">
@@ -334,33 +356,48 @@ export default function ProjectDetails() {
                   </div>
                 )}
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 {project.assignments.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {project.assignments.map((assignment) => (
                       <div
                         key={assignment.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50/50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200"
                         data-testid={`assignment-${assignment.user.id}`}
                       >
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage 
-                              src={assignment.user.profileImageUrl || undefined}
-                              alt={assignment.user.firstName || assignment.user.email || 'User'}
-                            />
-                            <AvatarFallback>
-                              {(assignment.user.firstName?.[0] || assignment.user.email?.[0] || 'U').toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium text-sm" data-testid={`text-user-name-${assignment.user.id}`}>
-                              {assignment.user.firstName && assignment.user.lastName
-                                ? `${assignment.user.firstName} ${assignment.user.lastName}`
-                                : assignment.user.email
-                              }
-                            </p>
-                            <p className="text-xs text-gray-500" data-testid={`text-user-email-${assignment.user.id}`}>
+                        <div className="flex items-center space-x-4">
+                          <div className="relative">
+                            <Avatar className="h-12 w-12 ring-2 ring-white shadow-sm">
+                              <AvatarImage 
+                                src={assignment.user.profileImageUrl || undefined}
+                                alt={assignment.user.firstName || assignment.user.email || 'User'}
+                              />
+                              <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">
+                                {(assignment.user.firstName?.[0] || assignment.user.email?.[0] || 'U').toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-1">
+                              <p className="font-semibold text-gray-900" data-testid={`text-user-name-${assignment.user.id}`}>
+                                {assignment.user.firstName && assignment.user.lastName
+                                  ? `${assignment.user.firstName} ${assignment.user.lastName}`
+                                  : assignment.user.email?.split('@')[0] || 'User'
+                                }
+                              </p>
+                              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                assignment.user.role === 'project_lead' 
+                                  ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                  : 'bg-green-100 text-green-800 border border-green-200'
+                              }`}>
+                                <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                  assignment.user.role === 'project_lead' ? 'bg-blue-500' : 'bg-green-500'
+                                }`}></div>
+                                {assignment.user.role === 'project_lead' ? 'PROJECT LEAD' : 'DEVELOPER'}
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600" data-testid={`text-user-email-${assignment.user.id}`}>
                               {assignment.user.email}
                             </p>
                           </div>
@@ -371,7 +408,7 @@ export default function ProjectDetails() {
                             size="sm"
                             onClick={() => removeUserMutation.mutate(assignment.user.id)}
                             disabled={removeUserMutation.isPending}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full h-9 w-9 p-0 transition-all duration-200"
                             data-testid={`button-remove-user-${assignment.user.id}`}
                           >
                             <UserMinus className="h-4 w-4" />
@@ -381,20 +418,25 @@ export default function ProjectDetails() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">No team members assigned</p>
+                  <div className="text-center py-12">
+                    <div className="h-16 w-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Users className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 font-medium">No team members assigned</p>
+                    <p className="text-sm text-gray-400 mt-1">Assign team members to get started</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Project Documents */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="h-5 w-5" />
-                  <span>Documents</span>
+            {/* Enhanced Project Documents */}
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-purple-500/10 to-violet-500/10 border-b border-gray-100 flex flex-row items-center justify-between">
+                <CardTitle className="flex items-center space-x-3">
+                  <div className="h-8 w-8 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-gray-900 font-semibold">Documents</span>
                 </CardTitle>
                 {canUploadDocuments && (
                   <Button
