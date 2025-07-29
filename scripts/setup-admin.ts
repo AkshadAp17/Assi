@@ -7,11 +7,15 @@ async function setupAdminUser() {
   try {
     console.log("Setting up default admin user...");
 
+    // Get admin credentials from environment variables
+    const adminEmail = process.env.ADMIN_EMAIL || "admin@gamedev.com";
+    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+
     // Check if admin user already exists
     const existingAdmin = await db
       .select()
       .from(users)
-      .where(eq(users.email, "admin@gamedev.com"));
+      .where(eq(users.email, adminEmail));
 
     if (existingAdmin.length > 0) {
       console.log("Admin user already exists!");
@@ -19,12 +23,12 @@ async function setupAdminUser() {
     }
 
     // Create default admin user
-    const hashedPassword = await bcrypt.hash("admin123", 10);
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
     
     const [adminUser] = await db
       .insert(users)
       .values({
-        email: "admin@gamedev.com",
+        email: adminEmail,
         passwordHash: hashedPassword,
         firstName: "System",
         lastName: "Administrator",
@@ -33,8 +37,8 @@ async function setupAdminUser() {
       .returning();
 
     console.log("✅ Default admin user created successfully!");
-    console.log("📧 Email: admin@gamedev.com");
-    console.log("🔑 Password: admin123");
+    console.log("📧 Email:", adminEmail);
+    console.log("🔑 Password:", adminPassword);
     console.log("⚠️  Please change the password after first login!");
     
   } catch (error) {
