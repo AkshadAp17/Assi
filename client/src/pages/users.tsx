@@ -231,24 +231,33 @@ export default function Users() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Select
-                            value={userData.role}
-                            onValueChange={(role) => 
-                              updateRoleMutation.mutate({ userId: userData.id, role })
-                            }
-                            disabled={updateRoleMutation.isPending}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="project_lead">Project Lead</SelectItem>
-                              <SelectItem value="developer">Developer</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          {userData.role === 'admin' ? (
+                            <Badge className={getRoleColor(userData.role)}>
+                              {formatRole(userData.role)}
+                            </Badge>
+                          ) : (
+                            <Select
+                              value={userData.role}
+                              onValueChange={(role) => 
+                                updateRoleMutation.mutate({ userId: userData.id, role })
+                              }
+                              disabled={updateRoleMutation.isPending}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="project_lead">Project Lead</SelectItem>
+                                <SelectItem value="developer">Developer</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
                         </TableCell>
                         <TableCell data-testid={`text-user-project-count-${userData.id}`}>
-                          {userData._count.projectAssignments} projects
+                          {userData.role === 'admin' 
+                            ? "All projects" 
+                            : `${userData._count.projectAssignments} projects`
+                          }
                         </TableCell>
                         <TableCell>
                           <Badge className="bg-green-100 text-green-800">
@@ -257,16 +266,21 @@ export default function Users() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteUserMutation.mutate(userData.id)}
-                              disabled={deleteUserMutation.isPending || userData.id === user.id}
-                              className="text-red-600 hover:text-red-700"
-                              data-testid={`button-delete-user-${userData.id}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            {userData.role !== 'admin' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteUserMutation.mutate(userData.id)}
+                                disabled={deleteUserMutation.isPending || userData.id === user.id}
+                                className="text-red-600 hover:text-red-700"
+                                data-testid={`button-delete-user-${userData.id}`}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {userData.role === 'admin' && (
+                              <span className="text-sm text-gray-500 px-2 py-1">System Admin</span>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
