@@ -5,6 +5,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, type AuthRequest } from "./auth";
 import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware/auth";
 import { upload } from "./middleware/upload";
+import { sendWelcomeEmail } from "./email";
 import { insertUserSchema, insertProjectSchema, insertProjectAssignmentSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -66,6 +67,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = createUserSchema.parse(finalUserData);
       
       const user = await storage.createUser(validatedData);
+      
+      // Send welcome email with temporary password
+      try {
+        await sendWelcomeEmail(validatedData.email, password, validatedData.firstName);
+        console.log(`Welcome email sent to ${validatedData.email}`);
+      } catch (emailError) {
+        console.error("Failed to send welcome email, but user was created:", emailError);
+        // Don't fail the user creation if email fails
+      }
+      
       res.status(201).json(user);
     } catch (error) {
       console.error("Error creating user:", error);
