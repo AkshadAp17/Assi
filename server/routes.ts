@@ -269,7 +269,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Allow project leads to update their own projects
+  // Allow project leads to update their own projects and admins to update any project
   app.patch('/api/projects/:id', (req, res, next) => {
     isAuthenticated(req as AuthRequest, res, (err) => {
       if (err) return next(err);
@@ -292,6 +292,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(403).json({ message: "You can only update projects you lead or created" });
         }
       }
+      // Admins can update any project (no additional checks needed)
       
       const project = await storage.updateProject(id, projectData);
       res.json(project);

@@ -70,6 +70,38 @@ export default function Projects() {
     },
   });
 
+  const updateProjectStatusMutation = useMutation({
+    mutationFn: async ({ projectId, status }: { projectId: string; status: string }) => {
+      await apiRequest('PATCH', `/api/projects/${projectId}`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      toast({
+        title: "Success",
+        description: "Project status updated successfully",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to update project status",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (isLoading || !user) {
     return <div>Loading...</div>;
   }
@@ -215,18 +247,36 @@ export default function Projects() {
                           </div>
                         )}
                       </div>
-                      {canDeleteProjects && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => deleteProjectMutation.mutate(project.id)}
-                          disabled={deleteProjectMutation.isPending}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 p-0"
-                          data-testid={`button-delete-project-${project.id}`}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {user.role === 'admin' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => updateProjectStatusMutation.mutate({ 
+                              projectId: project.id, 
+                              status: project.status === 'active' ? 'completed' : 'active' 
+                            })}
+                            disabled={updateProjectStatusMutation.isPending}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-full h-8 w-8 p-0"
+                            data-testid={`button-toggle-status-${project.id}`}
+                            title={project.status === 'active' ? 'Mark as Completed' : 'Mark as Active'}
+                          >
+                            {project.status === 'active' ? '✓' : '↻'}
+                          </Button>
+                        )}
+                        {canDeleteProjects && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteProjectMutation.mutate(project.id)}
+                            disabled={deleteProjectMutation.isPending}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full h-8 w-8 p-0"
+                            data-testid={`button-delete-project-${project.id}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     
                     <Link href={`/projects/${project.id}`}>

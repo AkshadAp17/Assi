@@ -125,22 +125,27 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]" data-testid="dialog-create-user">
-        <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <DialogContent className="sm:max-w-[500px] bg-white/95 backdrop-blur-xl border-0 shadow-2xl" data-testid="dialog-create-user">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white/30 to-purple-50/50 rounded-lg"></div>
+        <div className="relative z-10">
+          <DialogHeader className="pb-6">
+            <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Add New User
+            </DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Email Address</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="user@company.com"
+                      className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                       value={field.value ?? ""}
                       data-testid="input-user-email"
@@ -157,10 +162,11 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel className="text-gray-700 font-semibold">First Name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="John"
+                        className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         {...field}
                         value={field.value ?? ""}
                         data-testid="input-user-first-name"
@@ -176,10 +182,11 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel className="text-gray-700 font-semibold">Last Name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Doe"
+                        className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                         {...field}
                         value={field.value ?? ""}
                         data-testid="input-user-last-name"
@@ -196,11 +203,12 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="Enter password"
+                      className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                       value={field.value ?? ""}
                       data-testid="input-user-password"
@@ -216,10 +224,10 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Role</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger data-testid="select-user-role">
+                      <SelectTrigger className="h-12 bg-gray-50/80 border-gray-200 hover:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200" data-testid="select-user-role">
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                     </FormControl>
@@ -239,6 +247,7 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 data-testid="button-cancel-create-user"
+                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </Button>
@@ -246,12 +255,14 @@ export function CreateUserDialog({ open, onOpenChange }: CreateUserDialogProps) 
                 type="submit"
                 disabled={createUserMutation.isPending}
                 data-testid="button-submit-create-user"
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
               >
                 {createUserMutation.isPending ? "Creating..." : "Add User"}
               </Button>
             </div>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

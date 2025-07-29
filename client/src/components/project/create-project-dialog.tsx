@@ -89,21 +89,24 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]" data-testid="dialog-create-project">
-        <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] bg-white/95 backdrop-blur-xl border-0 shadow-2xl" data-testid="dialog-create-project">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white/30 to-purple-50/50 rounded-lg"></div>
+        <div className="relative z-10">
+          <DialogHeader className="pb-6">
+            <DialogTitle className="text-2xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Create New Project</DialogTitle>
+          </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Project Name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter project name"
+                      className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                       data-testid="input-project-name"
                     />
@@ -118,11 +121,12 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe the project"
                       rows={3}
+                      className="bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-none"
                       {...field}
                       value={field.value ?? ""}
                       data-testid="textarea-project-description"
@@ -138,10 +142,11 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
               name="deadline"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deadline (Optional)</FormLabel>
+                  <FormLabel className="text-gray-700 font-semibold">Deadline (Optional)</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
+                      className="h-12 bg-gray-50/80 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                       data-testid="input-project-deadline"
                     />
@@ -156,6 +161,7 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
+                className="px-6 py-2 border-gray-300 text-gray-700 hover:bg-gray-50"
                 data-testid="button-cancel-create-project"
               >
                 Cancel
@@ -163,6 +169,7 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
               <Button
                 type="submit"
                 disabled={createProjectMutation.isPending}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
                 data-testid="button-submit-create-project"
               >
                 {createProjectMutation.isPending ? "Creating..." : "Create Project"}
@@ -170,6 +177,7 @@ export function CreateProjectDialog({ open, onOpenChange }: CreateProjectDialogP
             </div>
           </form>
         </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -124,11 +124,13 @@ export function DocumentList({ projectId, documents }: DocumentListProps) {
   if (documents.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="h-16 w-16 bg-gradient-to-br from-purple-100 to-violet-200 rounded-full flex items-center justify-center mx-auto mb-4">
-          <FileText className="h-8 w-8 text-purple-500" />
+        <div className="h-20 w-20 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <FileText className="h-10 w-10 text-purple-500" />
         </div>
-        <p className="text-gray-500 font-medium">No documents uploaded</p>
-        <p className="text-sm text-gray-400 mt-1">Upload documents to share with your team</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents yet</h3>
+        <p className="text-gray-500 max-w-sm mx-auto">
+          Documents will appear here when they are uploaded to this project. Get started by uploading your first file.
+        </p>
       </div>
     );
   }
