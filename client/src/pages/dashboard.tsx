@@ -202,10 +202,17 @@ export default function Dashboard() {
                       View Projects
                     </Button>
                   </Link>
-                  {(user.role === 'admin' || user.role === 'project_lead') && (
+                  {user.role === 'admin' && (
                     <Link href="/users">
                       <Button variant="outline" className="border-blue-200 text-blue-700 hover:bg-blue-50 px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
                         Manage Team
+                      </Button>
+                    </Link>
+                  )}
+                  {user.role === 'project_lead' && (
+                    <Link href="/projects">
+                      <Button variant="outline" className="border-green-200 text-green-700 hover:bg-green-50 px-6 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
+                        Assign Developers
                       </Button>
                     </Link>
                   )}

@@ -333,17 +333,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Project assignment routes
+  // Project assignment routes - Fixed for project leads
   app.post('/api/projects/:id/assign', (req, res, next) => {
     isAuthenticated(req as AuthRequest, res, (err) => {
       if (err) return next(err);
-      requireProjectLead(req as AuthRequest, res, next);
+      // Allow both admins and project leads to assign users
+      if (!req.user || !['admin', 'project_lead'].includes(req.user.role)) {
+        return res.status(403).json({ message: "Insufficient permissions" });
+      }
+      next();
     });
   }, async (req: AuthRequest, res) => {
     try {
       const { id: projectId } = req.params;
       const { userId } = req.body;
       const assignedBy = req.user!.id;
+      
+      console.log(`Assignment attempt: User ${req.user!.role} (${assignedBy}) trying to assign ${userId} to project ${projectId}`);
       
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
@@ -355,15 +361,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Get the project to check permissions
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
       // Check role-based assignment permissions
-      if (req.user!.role === 'project_lead') {
-        const project = await storage.getProject(projectId);
-        if (!project) {
-          return res.status(404).json({ message: "Project not found" });
+      if (req.user!.role === 'admin') {
+        // Admins can only assign project leads to projects
+        if (userToAssign.role !== 'project_lead') {
+          return res.status(403).json({ message: "Admins can only assign project leads to projects" });
         }
+      } else if (req.user!.role === 'project_lead') {
+        // Check if the project lead has permission to assign to this project
+        const isProjectLead = project.projectLeadId === assignedBy;
+        const isProjectCreator = project.createdBy.id === assignedBy;
+        const isAssignedToProject = project.assignments.some(a => a.userId === assignedBy);
         
-        if (project.projectLeadId !== assignedBy && project.createdBy.id !== assignedBy) {
-          return res.status(403).json({ message: "You can only assign users to projects you lead or created" });
+        if (!isProjectLead && !isProjectCreator && !isAssignedToProject) {
+          return res.status(403).json({ message: "You can only assign users to projects you lead, created, or are assigned to" });
         }
 
         // Project leads can only assign developers
@@ -376,6 +393,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(assignment);
     } catch (error) {
       console.error("Error assigning user to project:", error);
+      if (error.message === 'User is already assigned to this project') {
+        return res.status(400).json({ message: "User is already assigned to this project" });
+      }
       res.status(500).json({ message: "Failed to assign user to project" });
     }
   });
