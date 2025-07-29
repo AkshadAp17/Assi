@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a GameDev Project Manager - a full-stack web application for managing game development projects. The application provides project tracking, team collaboration, and document management capabilities for game development teams.
+This is PixelForge Nexus - a full-stack web application for managing game development projects. The application provides project tracking, team collaboration, and document management capabilities for game development teams.
 
 ## User Preferences
 
@@ -72,6 +72,17 @@ Preferred communication style: Simple, everyday language.
 2. **Project Management**: Admins/Project Leads create projects → Assign team members → Track progress
 3. **Document Sharing**: Users upload files to projects → Files stored locally → Access controlled by authentication
 4. **Role Enforcement**: Middleware checks user roles before allowing access to protected routes
+
+## Recent Changes (July 29, 2025)
+
+### Website Rebranding & Mobile Responsiveness Enhancement (Current)
+✓ **Renamed website to "PixelForge Nexus"**: Updated all branding across sidebar, dashboard, and HTML title
+✓ **Enhanced mobile responsiveness**: Added mobile menu button with hamburger icon on all pages (dashboard, projects)
+✓ **Fixed mobile sidebar functionality**: Properly implemented sliding sidebar with overlay for phone users
+✓ **Added professional admin buttons**: "Complete" and "Hold" buttons are now prominently displayed on project cards
+✓ **Improved mobile navigation**: Users can now tap hamburger button to open sidebar, tap overlay or X button to close
+✓ **Mobile sidebar close button**: Added X button in sidebar header specifically for mobile users
+✓ **Responsive padding**: Adjusted page padding to work properly on both desktop (with sidebar) and mobile (without sidebar)
 
 ## Recent Changes (July 29, 2025)
 

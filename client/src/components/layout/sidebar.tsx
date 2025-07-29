@@ -8,7 +8,8 @@ import {
   Users, 
   Settings, 
   Gamepad2, 
-  LogOut 
+  LogOut,
+  X 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -53,22 +54,49 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile overlay */}
-      <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50 hidden" id="sidebar-overlay"></div>
+      <div 
+        className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50 hidden" 
+        id="sidebar-overlay"
+        onClick={() => {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          if (sidebar && overlay) {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+          }
+        }}
+      ></div>
       
       <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out" id="sidebar">
         <div className="flex flex-col h-full">
         {/* Enhanced Header */}
-        <div className="relative h-20 px-4 flex items-center justify-center border-b border-gray-200">
+        <div className="relative h-20 px-4 flex items-center justify-between border-b border-gray-200">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50"></div>
           <div className="relative flex items-center space-x-3">
             <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
               <Gamepad2 className="text-white h-5 w-5" />
             </div>
             <div>
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">GameDev PM</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">PixelForge Nexus</span>
               <p className="text-xs text-gray-500 -mt-1">Project Manager</p>
             </div>
           </div>
+          {/* Mobile close button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden relative z-10"
+            onClick={() => {
+              const sidebar = document.getElementById('sidebar');
+              const overlay = document.getElementById('sidebar-overlay');
+              if (sidebar && overlay) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+              }
+            }}
+          >
+            <X className="h-5 w-5" />
+          </Button>
         </div>
         
         {/* Role Badge */}

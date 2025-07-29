@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
-import { Folder, Users, Clock, FileText, Gamepad2 } from "lucide-react";
+import { Folder, Users, Clock, FileText, Gamepad2, Menu } from "lucide-react";
 import type { ProjectWithDetails } from "@shared/schema";
 
 interface DashboardStats {
@@ -83,7 +83,25 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Sidebar />
-      <div className="pl-64">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-white shadow-lg"
+          onClick={() => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && overlay) {
+              sidebar.classList.toggle('-translate-x-full');
+              overlay.classList.toggle('hidden');
+            }
+          }}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="lg:pl-64 pl-0">
         <div className="p-8">
           {/* Enhanced Welcome Header */}
           <div className="mb-8 relative overflow-hidden">
@@ -98,7 +116,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent" data-testid="text-welcome">
-                      GameDev Project Manager
+                      PixelForge Nexus
                     </h1>
                     <p className="text-xl font-medium text-gray-700 mt-1">{getGreeting()}</p>
                   </div>
