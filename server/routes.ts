@@ -6,7 +6,8 @@ import { setupAuth, isAuthenticated, type AuthRequest } from "./auth";
 import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware/auth";
 import { upload } from "./middleware/upload";
 import { sendWelcomeEmail } from "./email";
-import { insertUserSchema, insertProjectSchema, insertProjectAssignmentSchema } from "@shared/schema";
+// MongoDB routes - import types from storage
+import type { CreateUser, InsertProject, InsertProjectAssignment } from "./storage";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import path from "path";
@@ -64,17 +65,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         passwordHash,
       };
       
-      // Create a schema for validation that includes passwordHash
-      const createUserSchema = z.object({
-        email: z.string().email(),
-        firstName: z.string().min(1),
-        lastName: z.string().min(1),
-        passwordHash: z.string().min(1),
-        role: z.enum(['project_lead', 'developer']).default('developer'),
-        profileImageUrl: z.string().nullable().optional(),
-      });
+      // Basic validation for MongoDB
+      if (!finalUserData.email || !finalUserData.firstName || !finalUserData.lastName || !finalUserData.passwordHash) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
       
-      const validatedData = createUserSchema.parse(finalUserData);
+      const validatedData = {
+        email: finalUserData.email,
+        firstName: finalUserData.firstName,
+        lastName: finalUserData.lastName,
+        passwordHash: finalUserData.passwordHash,
+        role: finalUserData.role || 'developer',
+        profileImageUrl: finalUserData.profileImageUrl || null,
+      };
       
       const user = await storage.createUser(validatedData);
       
@@ -88,12 +91,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(201).json(user);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating user:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid user data", errors: error.errors });
-      }
-      if (error.message && error.message.includes('unique')) {
+      if (error.message && error.message.includes('duplicate') || error.message.includes('unique')) {
         return res.status(400).json({ message: "A user with this email already exists" });
       }
       res.status(500).json({ message: "Failed to create user" });
@@ -251,20 +251,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }, async (req: AuthRequest, res) => {
     try {
-      const projectData = insertProjectSchema.parse(req.body);
+      const { name, description, deadline, status, projectLeadId } = req.body;
       const userId = req.user!.id;
       
-      const project = await storage.createProject({
-        ...projectData,
+      if (!name) {
+        return res.status(400).json({ message: "Project name is required" });
+      }
+      
+      const projectData = {
+        name,
+        description: description || null,
+        deadline: deadline ? new Date(deadline) : null,
+        status: status || 'active',
+        projectLeadId: projectLeadId || null,
         createdBy: userId,
-      });
+      };
+      
+      const project = await storage.createProject(projectData);
       
       res.status(201).json(project);
     } catch (error) {
       console.error("Error creating project:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid project data", errors: error.errors });
-      }
       res.status(500).json({ message: "Failed to create project" });
     }
   });
@@ -279,7 +286,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       const userId = req.user!.id;
-      const projectData = insertProjectSchema.partial().parse(req.body);
+      const { name, description, deadline, status, projectLeadId } = req.body;
+      
+      const projectData = {
+        ...(name && { name }),
+        ...(description !== undefined && { description }),
+        ...(deadline !== undefined && { deadline: deadline ? new Date(deadline) : null }),
+        ...(status && { status }),
+        ...(projectLeadId !== undefined && { projectLeadId }),
+      };
       
       // Check if user can update this project
       if (req.user!.role === 'project_lead') {
@@ -298,9 +313,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(project);
     } catch (error) {
       console.error("Error updating project:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid project data", errors: error.errors });
-      }
       res.status(500).json({ message: "Failed to update project" });
     }
   });

@@ -25,7 +25,39 @@ import {
   UserMinus,
   Trash2
 } from "lucide-react";
-import type { ProjectWithDetails, UserWithStats } from "@shared/schema";
+// Define types locally to avoid import issues
+interface ProjectWithDetails {
+  id: string;
+  name: string;
+  description: string | null;
+  deadline: Date | null;
+  status: 'active' | 'completed' | 'on_hold';
+  createdBy: { id: string; firstName: string | null; lastName: string | null; email: string };
+  projectLead?: { id: string; firstName: string | null; lastName: string | null; email: string };
+  projectLeadId: string | null;
+  assignments: Array<{
+    id: string;
+    projectId: string;
+    userId: string;
+    assignedBy: string;
+    user: { id: string; firstName: string | null; lastName: string | null; email: string; profileImageUrl: string | null };
+    createdAt: Date | null;
+  }>;
+  documents: any[];
+  _count: { assignments: number; documents: number };
+  createdAt: Date | null;
+  updatedAt: Date | null;
+}
+
+interface UserWithStats {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  role: 'admin' | 'project_lead' | 'developer';
+  profileImageUrl: string | null;
+  _count: { projectAssignments: number };
+}
 
 export default function ProjectDetails() {
   const { id } = useParams();

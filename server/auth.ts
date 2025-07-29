@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import type { Express, Request, Response, NextFunction } from "express";
-import connectPg from "connect-pg-simple";
+import MemoryStore from "memorystore";
 import { storage } from "./storage";
-import type { User } from "@shared/schema";
+import type { User } from "./storage";
 
 export interface AuthRequest extends Request {
   user?: User;
@@ -11,13 +11,11 @@ export interface AuthRequest extends Request {
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
+  const MemoryStoreSession = MemoryStore(session);
+  const sessionStore = new MemoryStoreSession({
+    checkPeriod: sessionTtl, // prune expired entries every 24h
   });
+  
   return session({
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
     store: sessionStore,

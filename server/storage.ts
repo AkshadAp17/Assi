@@ -1,21 +1,104 @@
-import {
-  users,
-  projects,
-  projectAssignments,
-  documents,
-  type User,
-  type UpsertUser,
-  type Project,
-  type InsertProject,
-  type ProjectAssignment,
-  type InsertProjectAssignment,
-  type Document,
-  type InsertDocument,
-  type ProjectWithDetails,
-  type UserWithStats,
-} from "@shared/schema";
-import { db } from "./db";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+// MongoDB storage implementation - replaces Drizzle/PostgreSQL
+import { mongoStorage } from './mongodb-storage';
+import bcrypt from 'bcryptjs';
+
+// Types for compatibility with existing code
+export type User = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  profileImageUrl: string | null;
+  passwordHash: string;
+  role: 'admin' | 'project_lead' | 'developer';
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export type CreateUser = {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  passwordHash: string;
+  role?: 'admin' | 'project_lead' | 'developer';
+  profileImageUrl?: string;
+};
+
+export type UpsertUser = CreateUser & { id?: string };
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string | null;
+  deadline: Date | null;
+  status: 'active' | 'completed' | 'on_hold';
+  createdBy: string;
+  projectLeadId: string | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export type InsertProject = {
+  name: string;
+  description?: string;
+  deadline?: Date | null;
+  status?: 'active' | 'completed' | 'on_hold';
+  createdBy: string;
+  projectLeadId?: string;
+};
+
+export type ProjectAssignment = {
+  id: string;
+  projectId: string;
+  userId: string;
+  assignedBy: string;
+  createdAt: Date | null;
+};
+
+export type InsertProjectAssignment = {
+  projectId: string;
+  userId: string;
+  assignedBy: string;
+};
+
+export type Document = {
+  id: string;
+  projectId: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+  createdAt: Date | null;
+};
+
+export type InsertDocument = {
+  projectId: string;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  uploadedBy: string;
+};
+
+export type ProjectWithDetails = Project & {
+  createdBy: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>;
+  projectLead?: Pick<User, 'id' | 'firstName' | 'lastName' | 'email'>;
+  assignments: (ProjectAssignment & {
+    user: Pick<User, 'id' | 'firstName' | 'lastName' | 'email' | 'profileImageUrl'>;
+  })[];
+  documents: Document[];
+  _count: {
+    assignments: number;
+    documents: number;
+  };
+};
+
+export type UserWithStats = User & {
+  _count: {
+    projectAssignments: number;
+  };
+};
 
 // Interface for storage operations
 export interface IStorage {
@@ -62,424 +145,130 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // User operations
-  // (IMPORTANT) these user operations are mandatory for Replit Auth.
-
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    return await mongoStorage.getUser(id);
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user;
+    return await mongoStorage.getUserByEmail(email);
   }
 
-  async createUser(userData: CreateUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .returning();
-    return user;
+  async createUser(user: CreateUser): Promise<User> {
+    return await mongoStorage.createUser(user);
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
-      })
-      .returning();
-    return user;
+  async upsertUser(user: UpsertUser): Promise<User> {
+    if (user.id) {
+      const existingUser = await this.getUser(user.id);
+      if (existingUser) {
+        // Update existing user - not implemented for MongoDB yet
+        throw new Error('User update not implemented');
+      }
+    }
+    return await mongoStorage.createUser(user);
   }
 
   async getAllUsers(): Promise<UserWithStats[]> {
-    const result = await db
-      .select({
-        id: users.id,
-        email: users.email,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        profileImageUrl: users.profileImageUrl,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-        _count: {
-          projectAssignments: sql<number>`cast(count(${projectAssignments.id}) as int)`,
-        },
-      })
-      .from(users)
-      .leftJoin(projectAssignments, eq(users.id, projectAssignments.userId))
-      .groupBy(users.id)
-      .orderBy(desc(users.createdAt));
-
-    return result;
+    return await mongoStorage.getAllUsers();
   }
 
-
-
   async updateUserRole(userId: string, role: 'admin' | 'project_lead' | 'developer'): Promise<User> {
-    const [user] = await db
-      .update(users)
-      .set({ role, updatedAt: new Date() })
-      .where(eq(users.id, userId))
-      .returning();
+    const user = await mongoStorage.updateUserRole(userId, role);
+    if (!user) throw new Error('User not found');
     return user;
   }
 
   async updateUserPassword(userId: string, passwordHash: string): Promise<void> {
-    await db
-      .update(users)
-      .set({ passwordHash, updatedAt: new Date() })
-      .where(eq(users.id, userId));
+    await mongoStorage.updateUserPassword(userId, passwordHash);
   }
 
   async deleteUser(userId: string): Promise<void> {
-    await db.delete(users).where(eq(users.id, userId));
+    await mongoStorage.deleteUser(userId);
   }
 
   // Project operations
   async getAllProjects(): Promise<ProjectWithDetails[]> {
-    const result = await db
-      .select({
-        id: projects.id,
-        name: projects.name,
-        description: projects.description,
-        deadline: projects.deadline,
-        status: projects.status,
-        createdBy: projects.createdBy,
-        projectLeadId: projects.projectLeadId,
-        createdAt: projects.createdAt,
-        updatedAt: projects.updatedAt,
-        createdByUser: {
-          id: sql<string>`creator.id`,
-          firstName: sql<string>`creator.first_name`,
-          lastName: sql<string>`creator.last_name`,
-          email: sql<string>`creator.email`,
-        },
-        projectLeadUser: {
-          id: sql<string>`lead.id`,
-          firstName: sql<string>`lead.first_name`,
-          lastName: sql<string>`lead.last_name`,
-          email: sql<string>`lead.email`,
-        },
-        assignmentCount: sql<number>`cast(count(distinct ${projectAssignments.id}) as int)`,
-        documentCount: sql<number>`cast(count(distinct ${documents.id}) as int)`,
-      })
-      .from(projects)
-      .leftJoin(sql`${users} as creator`, eq(projects.createdBy, sql`creator.id`))
-      .leftJoin(sql`${users} as lead`, eq(projects.projectLeadId, sql`lead.id`))
-      .leftJoin(projectAssignments, eq(projects.id, projectAssignments.projectId))
-      .leftJoin(documents, eq(projects.id, documents.projectId))
-      .groupBy(projects.id, sql`creator.id`, sql`creator.first_name`, sql`creator.last_name`, sql`creator.email`, sql`lead.id`, sql`lead.first_name`, sql`lead.last_name`, sql`lead.email`)
-      .orderBy(desc(projects.createdAt));
-
-    // Get assignments for each project
-    const projectsWithAssignments = await Promise.all(
-      result.map(async (project) => {
-        const assignments = await db
-          .select({
-            id: projectAssignments.id,
-            projectId: projectAssignments.projectId,
-            userId: projectAssignments.userId,
-            assignedBy: projectAssignments.assignedBy,
-            createdAt: projectAssignments.createdAt,
-            user: {
-              id: users.id,
-              firstName: users.firstName,
-              lastName: users.lastName,
-              email: users.email,
-              profileImageUrl: users.profileImageUrl,
-            },
-          })
-          .from(projectAssignments)
-          .innerJoin(users, eq(projectAssignments.userId, users.id))
-          .where(eq(projectAssignments.projectId, project.id));
-
-        const projectDocuments = await db
-          .select()
-          .from(documents)
-          .where(eq(documents.projectId, project.id));
-
-        return {
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          status: project.status,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt,
-          deadline: project.deadline,
-          createdBy: project.createdByUser.id,
-          projectLeadId: project.projectLeadUser.id || null,
-          createdByUser: project.createdByUser,
-          projectLeadUser: project.projectLeadUser.id ? project.projectLeadUser : undefined,
-          assignments,
-          documents: projectDocuments,
-          _count: {
-            assignments: project.assignmentCount,
-            documents: project.documentCount,
-          },
-        } as ProjectWithDetails;
-      })
-    );
-
-    return projectsWithAssignments;
+    return await mongoStorage.getAllProjects();
   }
 
   async getProject(id: string): Promise<ProjectWithDetails | undefined> {
-    const [project] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, id));
-
-    if (!project) return undefined;
-
-    const [createdByUser] = await db
-      .select({
-        id: users.id,
-        firstName: users.firstName,
-        lastName: users.lastName,
-        email: users.email,
-      })
-      .from(users)
-      .where(eq(users.id, project.createdBy));
-
-    let projectLeadUser = undefined;
-    if (project.projectLeadId) {
-      [projectLeadUser] = await db
-        .select({
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-        })
-        .from(users)
-        .where(eq(users.id, project.projectLeadId));
-    }
-
-    const assignments = await db
-      .select({
-        id: projectAssignments.id,
-        projectId: projectAssignments.projectId,
-        userId: projectAssignments.userId,
-        assignedBy: projectAssignments.assignedBy,
-        createdAt: projectAssignments.createdAt,
-        user: {
-          id: users.id,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-          profileImageUrl: users.profileImageUrl,
-        },
-      })
-      .from(projectAssignments)
-      .innerJoin(users, eq(projectAssignments.userId, users.id))
-      .where(eq(projectAssignments.projectId, id));
-
-    const projectDocuments = await db
-      .select()
-      .from(documents)
-      .where(eq(documents.projectId, id));
-
-    return {
-      ...project,
-      createdBy: createdByUser,
-      projectLead: projectLeadUser,
-      assignments,
-      documents: projectDocuments,
-      _count: {
-        assignments: assignments.length,
-        documents: projectDocuments.length,
-      },
-    } as ProjectWithDetails;
-  }
-
-  async getProjectsByLead(userId: string): Promise<ProjectWithDetails[]> {
-    // Get all projects where user is the project lead
-    const result = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.projectLeadId, userId))
-      .orderBy(desc(projects.createdAt));
-
-    // Get full project details for each project
-    const projectsWithDetails = await Promise.all(
-      result.map(async (project) => {
-        // Get creator details
-        const [createdByUser] = await db
-          .select({
-            id: users.id,
-            firstName: users.firstName,
-            lastName: users.lastName,
-            email: users.email,
-          })
-          .from(users)
-          .where(eq(users.id, project.createdBy));
-
-        // Get project lead details
-        let projectLeadUser = undefined;
-        if (project.projectLeadId) {
-          [projectLeadUser] = await db
-            .select({
-              id: users.id,
-              firstName: users.firstName,
-              lastName: users.lastName,
-              email: users.email,
-            })
-            .from(users)
-            .where(eq(users.id, project.projectLeadId));
-        }
-
-        // Get assignments
-        const assignments = await db
-          .select({
-            id: projectAssignments.id,
-            projectId: projectAssignments.projectId,
-            userId: projectAssignments.userId,
-            assignedBy: projectAssignments.assignedBy,
-            createdAt: projectAssignments.createdAt,
-            user: {
-              id: users.id,
-              firstName: users.firstName,
-              lastName: users.lastName,
-              email: users.email,
-              profileImageUrl: users.profileImageUrl,
-            },
-          })
-          .from(projectAssignments)
-          .innerJoin(users, eq(projectAssignments.userId, users.id))
-          .where(eq(projectAssignments.projectId, project.id));
-
-        // Get documents
-        const projectDocuments = await db
-          .select()
-          .from(documents)
-          .where(eq(documents.projectId, project.id));
-
-        return {
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          status: project.status,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt,
-          deadline: project.deadline,
-          createdBy: createdByUser,
-          projectLead: projectLeadUser,
-          assignments,
-          documents: projectDocuments,
-          _count: {
-            assignments: assignments.length,
-            documents: projectDocuments.length,
-          },
-        } as ProjectWithDetails;
-      })
-    );
-
-    return projectsWithDetails;
+    return await mongoStorage.getProject(id);
   }
 
   async getProjectsByUser(userId: string): Promise<ProjectWithDetails[]> {
-    const userProjects = await db
-      .select({ projectId: projectAssignments.projectId })
-      .from(projectAssignments)
-      .where(eq(projectAssignments.userId, userId));
-
-    if (userProjects.length === 0) return [];
-
-    const projectIds = userProjects.map(p => p.projectId);
-    const allProjects = await this.getAllProjects();
-    
-    return allProjects.filter(project => projectIds.includes(project.id));
+    return await mongoStorage.getProjectsByUser(userId);
   }
 
   async getProjectsByLead(userId: string): Promise<ProjectWithDetails[]> {
-    const allProjects = await this.getAllProjects();
-    return allProjects.filter(project => 
-      project.projectLeadId === userId || project.createdBy === userId
-    );
+    return await mongoStorage.getProjectsByLead(userId);
   }
 
   async createProject(projectData: InsertProject): Promise<Project> {
-    const [project] = await db
-      .insert(projects)
-      .values(projectData)
-      .returning();
-    return project;
+    const result = await mongoStorage.createProject(projectData);
+    // Extract just the project data from the detailed result
+    return {
+      id: result.id,
+      name: result.name,
+      description: result.description,
+      deadline: result.deadline,
+      status: result.status,
+      createdBy: typeof result.createdBy === 'string' ? result.createdBy : result.createdBy.id,
+      projectLeadId: result.projectLeadId,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt
+    };
   }
 
   async updateProject(id: string, projectData: Partial<InsertProject>): Promise<Project> {
-    const [project] = await db
-      .update(projects)
-      .set({ ...projectData, updatedAt: new Date() })
-      .where(eq(projects.id, id))
-      .returning();
-    return project;
+    const result = await mongoStorage.updateProject(id, projectData);
+    if (!result) throw new Error('Project not found');
+    // Extract just the project data from the detailed result
+    return {
+      id: result.id,
+      name: result.name,
+      description: result.description,
+      deadline: result.deadline,
+      status: result.status,
+      createdBy: typeof result.createdBy === 'string' ? result.createdBy : result.createdBy.id,
+      projectLeadId: result.projectLeadId,
+      createdAt: result.createdAt,
+      updatedAt: result.updatedAt
+    };
   }
 
   async deleteProject(id: string): Promise<void> {
-    await db.delete(projects).where(eq(projects.id, id));
+    await mongoStorage.deleteProject(id);
   }
 
   // Project assignment operations
   async assignUserToProject(projectId: string, userId: string, assignedBy: string): Promise<ProjectAssignment> {
-    const [assignment] = await db
-      .insert(projectAssignments)
-      .values({
-        projectId,
-        userId,
-        assignedBy,
-      })
-      .returning();
-    return assignment;
+    return await mongoStorage.assignUserToProject(projectId, userId, assignedBy);
   }
 
   async removeUserFromProject(projectId: string, userId: string): Promise<void> {
-    await db
-      .delete(projectAssignments)
-      .where(
-        and(
-          eq(projectAssignments.projectId, projectId),
-          eq(projectAssignments.userId, userId)
-        )
-      );
+    await mongoStorage.removeUserFromProject(projectId, userId);
   }
 
   async getProjectAssignments(projectId: string): Promise<ProjectAssignment[]> {
-    return await db
-      .select()
-      .from(projectAssignments)
-      .where(eq(projectAssignments.projectId, projectId));
+    const project = await mongoStorage.getProject(projectId);
+    return project ? project.assignments : [];
   }
 
   // Document operations
   async createDocument(documentData: InsertDocument): Promise<Document> {
-    const [document] = await db
-      .insert(documents)
-      .values(documentData)
-      .returning();
-    return document;
+    return await mongoStorage.createDocument(documentData);
   }
 
   async getDocument(id: string): Promise<Document | undefined> {
-    const [document] = await db.select().from(documents).where(eq(documents.id, id));
-    return document;
+    return await mongoStorage.getDocument(id);
   }
 
   async getProjectDocuments(projectId: string): Promise<Document[]> {
-    return await db
-      .select()
-      .from(documents)
-      .where(eq(documents.projectId, projectId))
-      .orderBy(desc(documents.createdAt));
+    return await mongoStorage.getProjectDocuments(projectId);
   }
 
   async deleteDocument(id: string): Promise<void> {
-    await db.delete(documents).where(eq(documents.id, id));
+    await mongoStorage.deleteDocument(id);
   }
 
   // Stats operations
@@ -489,79 +278,39 @@ export class DatabaseStorage implements IStorage {
     dueThisWeek: number;
     totalDocuments: number;
   }> {
-    const oneWeekFromNow = new Date();
-    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-
-    let activeProjectsQuery;
-    let documentsQuery;
-
-    if (userRole === 'developer') {
-      // For developers, only count projects they're assigned to
-      const userProjectIds = await db
-        .select({ projectId: projectAssignments.projectId })
-        .from(projectAssignments)
-        .where(eq(projectAssignments.userId, userId));
-
-      const projectIds = userProjectIds.map(p => p.projectId);
-
-      if (projectIds.length === 0) {
-        return {
-          activeProjects: 0,
-          teamMembers: 0,
-          dueThisWeek: 0,
-          totalDocuments: 0,
-        };
-      }
-
-      activeProjectsQuery = db
-        .select({ count: sql<number>`cast(count(*) as int)` })
-        .from(projects)
-        .where(
-          and(
-            inArray(projects.id, projectIds),
-            eq(projects.status, 'active')
-          )
-        );
-
-      documentsQuery = db
-        .select({ count: sql<number>`cast(count(*) as int)` })
-        .from(documents)
-        .where(inArray(documents.projectId, projectIds));
+    // Basic implementation for MongoDB
+    let projects: ProjectWithDetails[] = [];
+    
+    if (userRole === 'admin') {
+      projects = await this.getAllProjects();
+    } else if (userRole === 'project_lead') {
+      const ledProjects = await this.getProjectsByLead(userId);
+      const assignedProjects = await this.getProjectsByUser(userId);
+      // Combine and deduplicate
+      projects = [...ledProjects, ...assignedProjects].filter((project, index, self) => 
+        index === self.findIndex(p => p.id === project.id)
+      );
     } else {
-      // For admins and project leads, count all projects
-      activeProjectsQuery = db
-        .select({ count: sql<number>`cast(count(*) as int)` })
-        .from(projects)
-        .where(eq(projects.status, 'active'));
-
-      documentsQuery = db
-        .select({ count: sql<number>`cast(count(*) as int)` })
-        .from(documents);
+      projects = await this.getProjectsByUser(userId);
     }
 
-    const [activeProjectsResult] = await activeProjectsQuery;
-    const [teamMembersResult] = await db
-      .select({ count: sql<number>`cast(count(*) as int)` })
-      .from(users);
-
-    const [dueThisWeekResult] = await db
-      .select({ count: sql<number>`cast(count(*) as int)` })
-      .from(projects)
-      .where(
-        and(
-          eq(projects.status, 'active'),
-          sql`${projects.deadline} <= ${oneWeekFromNow}`,
-          sql`${projects.deadline} >= ${new Date()}`
-        )
-      );
-
-    const [totalDocumentsResult] = await documentsQuery;
+    const activeProjects = projects.filter(p => p.status === 'active').length;
+    const totalMembers = new Set(projects.flatMap(p => p.assignments.map(a => a.userId))).size;
+    
+    // Calculate due this week
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    const dueThisWeek = projects.filter(p => 
+      p.deadline && new Date(p.deadline) <= oneWeekFromNow && new Date(p.deadline) >= new Date()
+    ).length;
+    
+    const totalDocuments = projects.reduce((sum, p) => sum + p._count.documents, 0);
 
     return {
-      activeProjects: activeProjectsResult.count,
-      teamMembers: teamMembersResult.count,
-      dueThisWeek: dueThisWeekResult.count,
-      totalDocuments: totalDocumentsResult.count,
+      activeProjects,
+      teamMembers: totalMembers,
+      dueThisWeek,
+      totalDocuments
     };
   }
 }
