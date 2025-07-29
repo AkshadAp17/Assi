@@ -185,23 +185,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       let projects;
-      if (req.user!.role === 'developer') {
-        // Developers see only their assigned projects
-        projects = await storage.getUserProjects(userId);
-      } else if (req.user!.role === 'project_lead') {
-        // Project leads see projects they lead + projects they're assigned to
-        const assignedProjects = await storage.getUserProjects(userId);
-        // Get projects where user is the lead
-        const allProjects = await storage.getAllProjects();
-        const ledProjects = allProjects.filter(p => p.projectLeadId === userId);
-        // Combine and deduplicate
-        const combinedProjects = [...ledProjects, ...assignedProjects];
-        projects = combinedProjects.filter((project, index, self) => 
-          index === self.findIndex(p => p.id === project.id)
-        );
-      } else {
+      if (req.user!.role === 'admin') {
         // Admins see all projects
         projects = await storage.getAllProjects();
+      } else if (req.user!.role === 'project_lead') {
+        // Project leads see all projects (they can be assigned to any project)
+        projects = await storage.getAllProjects();
+      } else {
+        // Developers see only their assigned projects
+        projects = await storage.getUserProjects(userId);
       }
       
       res.json(projects);
