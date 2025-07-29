@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
-import { Plus, Gamepad2, Users, Calendar } from "lucide-react";
+import { Plus, Gamepad2, Users, Calendar, FileText, X } from "lucide-react";
 import type { ProjectWithDetails } from "@shared/schema";
 
 export default function Projects() {
@@ -173,7 +173,7 @@ export default function Projects() {
                           Deadline
                         </span>
                         <span className="font-semibold text-gray-900" data-testid={`text-project-deadline-${project.id}`}>
-                          {formatDeadline(project.deadline)}
+                          {formatDeadline(project.deadline?.toString() || null)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center text-sm bg-gray-50 rounded-lg p-2">
