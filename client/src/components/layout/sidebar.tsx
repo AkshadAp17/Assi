@@ -17,7 +17,8 @@ export function Sidebar() {
   const [location] = useLocation();
 
   const handleLogout = () => {
-    window.location.href = "/api/logout";
+    // Force redirect to logout endpoint and then to login
+    window.location.replace("/api/logout");
   };
 
   const navigation = [

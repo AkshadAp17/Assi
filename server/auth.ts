@@ -117,7 +117,8 @@ export async function setupAuth(app: Express) {
         return res.status(500).json({ message: 'Could not log out' });
       }
       res.clearCookie('connect.sid');
-      res.json({ message: 'Logged out successfully' });
+      // Always redirect to login page
+      res.redirect('/login');
     });
   };
   
@@ -152,14 +153,6 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = (req.session as any)?.userId;
-    
-    // Debug session info
-    console.log('Session check:', {
-      sessionId: req.sessionID,
-      hasSession: !!req.session,
-      userId: userId,
-      url: req.url
-    });
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
