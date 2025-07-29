@@ -27,6 +27,7 @@ export function getSession() {
       httpOnly: true,
       secure: false, // Set to true in production with HTTPS
       maxAge: sessionTtl,
+      sameSite: 'lax', // Allow cookies for same-site requests
     },
   });
 }
@@ -56,6 +57,13 @@ export async function setupAuth(app: Express) {
 
       // Store user in session
       (req.session as any).userId = user.id;
+      
+      // Save session explicitly
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+        }
+      });
       
       // Return user without password
       const { passwordHash, ...userWithoutPassword } = user;
@@ -144,6 +152,14 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = (req.session as any)?.userId;
+    
+    // Debug session info
+    console.log('Session check:', {
+      sessionId: req.sessionID,
+      hasSession: !!req.session,
+      userId: userId,
+      url: req.url
+    });
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
