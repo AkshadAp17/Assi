@@ -51,8 +51,12 @@ export function Sidebar() {
   if (!user) return null;
 
   return (
-    <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-lg">
-      <div className="flex flex-col h-full">
+    <>
+      {/* Mobile overlay */}
+      <div className="lg:hidden fixed inset-0 z-40 bg-black bg-opacity-50 hidden" id="sidebar-overlay"></div>
+      
+      <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 shadow-lg transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out" id="sidebar">
+        <div className="flex flex-col h-full">
         {/* Enhanced Header */}
         <div className="relative h-20 px-4 flex items-center justify-center border-b border-gray-200">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50"></div>
@@ -176,5 +180,6 @@ export function Sidebar() {
         </div>
       </div>
     </div>
+    </>
   );
 }

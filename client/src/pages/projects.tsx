@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
-import { Plus, Gamepad2, Users, Calendar, FileText, X } from "lucide-react";
+import { Plus, Gamepad2, Users, Calendar, FileText, X, Menu, CheckCircle, Pause, Play } from "lucide-react";
 import type { ProjectWithDetails } from "@shared/schema";
 
 export default function Projects() {
@@ -134,7 +134,25 @@ export default function Projects() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100">
       <Sidebar />
-      <div className="pl-64">
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-white shadow-lg"
+          onClick={() => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && overlay) {
+              sidebar.classList.toggle('-translate-x-full');
+              overlay.classList.toggle('hidden');
+            }
+          }}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="lg:pl-64 pl-0">
         <div className="p-8">
           <div className="mb-8 relative">
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl opacity-10"></div>
@@ -312,12 +330,67 @@ export default function Projects() {
                       </div>
                     </div>
                     
-                    <Link href={`/projects/${project.id}`}>
-                      <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200 group-hover:scale-105" data-testid={`button-view-project-${project.id}`}>
-                        <span>Open Project</span>
-                        <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
-                      </Button>
-                    </Link>
+                    <div className="space-y-3">
+                      <Link href={`/projects/${project.id}`}>
+                        <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200" data-testid={`button-view-project-${project.id}`}>
+                          <span>Open Project</span>
+                          <span className="ml-2 transition-transform group-hover:translate-x-1">→</span>
+                        </Button>
+                      </Link>
+                      
+                      {user.role === 'admin' && (
+                        <div className="flex space-x-2">
+                          {project.status !== 'completed' && (
+                            <Button
+                              onClick={() => updateProjectStatusMutation.mutate({ 
+                                projectId: project.id, 
+                                status: 'completed' 
+                              })}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 border-green-200 text-green-700 hover:bg-green-50 hover:border-green-300 font-medium"
+                              data-testid={`button-complete-project-${project.id}`}
+                              disabled={updateProjectStatusMutation.isPending}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Complete
+                            </Button>
+                          )}
+                          {project.status !== 'on_hold' && project.status !== 'completed' && (
+                            <Button
+                              onClick={() => updateProjectStatusMutation.mutate({ 
+                                projectId: project.id, 
+                                status: 'on_hold' 
+                              })}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300 font-medium"
+                              data-testid={`button-hold-project-${project.id}`}
+                              disabled={updateProjectStatusMutation.isPending}
+                            >
+                              <Pause className="h-4 w-4 mr-1" />
+                              Hold
+                            </Button>
+                          )}
+                          {project.status === 'on_hold' && (
+                            <Button
+                              onClick={() => updateProjectStatusMutation.mutate({ 
+                                projectId: project.id, 
+                                status: 'active' 
+                              })}
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 font-medium"
+                              data-testid={`button-activate-project-${project.id}`}
+                              disabled={updateProjectStatusMutation.isPending}
+                            >
+                              <Play className="h-4 w-4 mr-1" />
+                              Activate
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))
