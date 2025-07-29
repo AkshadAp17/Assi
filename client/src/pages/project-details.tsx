@@ -396,7 +396,14 @@ export default function ProjectDetails() {
               <CardContent className="p-6">
                 {project.assignments.length > 0 ? (
                   <div className="space-y-4">
-                    {project.assignments.map((assignment) => (
+                    {project.assignments
+                      .sort((a, b) => {
+                        // Sort project leads first, then developers
+                        if (a.user.role === 'project_lead' && b.user.role !== 'project_lead') return -1;
+                        if (a.user.role !== 'project_lead' && b.user.role === 'project_lead') return 1;
+                        return 0;
+                      })
+                      .map((assignment) => (
                       <div
                         key={assignment.id}
                         className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50/50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200"

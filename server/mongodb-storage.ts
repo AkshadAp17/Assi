@@ -336,7 +336,7 @@ class MongoDBStorage {
         firstName: assignment.userId.firstName || null,
         lastName: assignment.userId.lastName || null,
         profileImageUrl: assignment.userId.profileImageUrl || null,
-        role: assignment.userId.role
+        role: assignment.userId.role || 'developer'
       } : null,
       createdAt: assignment.createdAt
     };
