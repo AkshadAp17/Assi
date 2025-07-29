@@ -6,8 +6,8 @@ import { setupAuth, isAuthenticated, type AuthRequest } from "./auth";
 import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware/auth";
 import { upload } from "./middleware/upload";
 import { sendWelcomeEmail } from "./email";
-// MongoDB routes - import types from storage
-import type { CreateUser, InsertProject, InsertProjectAssignment } from "./storage";
+// Import types from shared schema
+import type { CreateUser, InsertProject, InsertProjectAssignment } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import path from "path";
