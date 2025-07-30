@@ -128,26 +128,32 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Logout route (support both GET and POST)
+  // Optimized logout route (support both GET and POST)
   const logoutHandler = (req: Request, res: Response) => {
+    // Clear session data immediately
+    (req.session as any).userId = null;
+    
+    // Clear cookie immediately
+    res.clearCookie('connect.sid', { 
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    });
+    
+    // Destroy session asynchronously (don't wait for it)
     req.session.destroy((err) => {
       if (err) {
-        console.error('Logout error:', err);
-        return res.status(500).json({ message: 'Could not log out' });
-      }
-      res.clearCookie('connect.sid', { 
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-      // For API calls, return JSON; for browser requests, redirect
-      if (req.headers.accept?.includes('application/json')) {
-        res.json({ message: 'Logged out successfully' });
-      } else {
-        res.redirect('/login');
+        console.error('Session destroy error:', err);
       }
     });
+    
+    // Return response immediately
+    if (req.headers.accept?.includes('application/json')) {
+      res.json({ message: 'Logged out successfully' });
+    } else {
+      res.redirect('/');
+    }
   };
   
   app.post('/api/auth/logout', logoutHandler);
