@@ -10,19 +10,14 @@ import { sendWelcomeEmail } from "./email";
 import type { CreateUser, InsertProject, InsertProjectAssignment } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import path from "path";
-import fs from "fs";
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
   // Serve uploaded files with authentication check
-  app.use('/uploads', (req, res, next) => {
-    isAuthenticated(req as AuthRequest, res, next);
-  });
-  
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  // File uploads are now handled through Cloudinary - no local uploads directory needed
 
   // Auth routes are now handled in auth.ts
 
@@ -495,15 +490,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "No files uploaded" });
         }
 
+        const { cloudinaryService } = await import('./cloudinary');
         const uploadedDocuments = [];
+        
         for (const file of files) {
+          // Upload to Cloudinary
+          const cloudinaryResult = await cloudinaryService.uploadFile(file.buffer, {
+            folder: 'pixelforge-nexus/documents',
+            filename: `${projectId}_${Date.now()}_${file.originalname}`,
+          });
+
           const document = await storage.createDocument({
             projectId,
-            fileName: file.filename,
+            fileName: cloudinaryResult.public_id,
             originalName: file.originalname,
             fileSize: file.size,
             mimeType: file.mimetype,
             uploadedBy: userId,
+            cloudinaryUrl: cloudinaryResult.secure_url,
+            cloudinaryPublicId: cloudinaryResult.public_id,
           });
           uploadedDocuments.push(document);
         }
@@ -516,39 +521,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
-  // File download route
+  // File download route - redirect to Cloudinary URL
   app.get('/api/documents/:id/download', (req, res, next) => {
     isAuthenticated(req as AuthRequest, res, next);
   }, async (req: AuthRequest, res) => {
     try {
       const { id } = req.params;
-      const document = await storage.getDocument(id);
+      const document = await storage.getDocumentById(id);
       
       if (!document) {
         return res.status(404).json({ message: 'Document not found' });
       }
 
       // Check if user has access to this project
-      const project = await storage.getProject(document.projectId);
+      const project = await storage.getProjectById(document.projectId);
       if (!project) {
         return res.status(404).json({ message: 'Project not found' });
       }
 
       if (req.user!.role === 'developer') {
-        const hasAccess = project.assignments.some(assignment => assignment.userId === req.user!.id);
+        const hasAccess = project.assignments.some((assignment: any) => assignment.userId === req.user!.id);
         if (!hasAccess) {
           return res.status(403).json({ message: 'Access denied' });
         }
       }
 
-      const filePath = path.join(process.cwd(), 'uploads', document.fileName);
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: 'File not found on disk' });
-      }
-
-      res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
-      res.setHeader('Content-Type', document.mimeType);
-      res.sendFile(path.resolve(filePath));
+      // Redirect to Cloudinary URL for download
+      res.redirect(document.cloudinaryUrl);
     } catch (error) {
       console.error('Error downloading document:', error);
       res.status(500).json({ message: 'Failed to download document' });
@@ -564,15 +563,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { id } = req.params;
       
-      const document = await storage.getDocument(id);
+      // Find the document first to get its Cloudinary public ID
+      const document = await storage.getDocumentById(id);
       
-      if (document) {
-        const filePath = path.join(process.cwd(), 'uploads', document.fileName);
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-        }
-      } else {
+      if (!document) {
         return res.status(404).json({ message: "Document not found" });
+      }
+      
+      // Delete from Cloudinary
+      try {
+        const { cloudinaryService } = await import('./cloudinary');
+        await cloudinaryService.deleteFile(document.cloudinaryPublicId);
+      } catch (cloudinaryError) {
+        console.error("Error deleting from Cloudinary:", cloudinaryError);
+        // Continue with database deletion even if Cloudinary deletion fails
       }
       
       await storage.deleteDocument(id);
@@ -588,8 +592,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     isAuthenticated(req as AuthRequest, res, next);
   }, async (req: AuthRequest, res) => {
     try {
-      const userId = req.user!.id;
-      const stats = await storage.getDashboardStats(userId, req.user!.role);
+      const stats = await storage.getDashboardStats();
       res.json(stats);
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);

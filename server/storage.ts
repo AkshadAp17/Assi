@@ -1,5 +1,5 @@
-// In-memory storage implementation - replaces MongoDB for simpler deployment
-import { memoryStorage } from './memory-storage';
+// MongoDB Atlas storage implementation with Cloudinary for file storage
+import { mongoStorage } from './mongodb-storage';
 
 // Types for compatibility with existing code
 export type User = {
@@ -68,6 +68,8 @@ export type Document = {
   fileSize: number;
   mimeType: string;
   uploadedBy: string;
+  cloudinaryUrl: string;
+  cloudinaryPublicId: string;
   createdAt: Date | null;
 };
 
@@ -78,83 +80,89 @@ export type InsertDocument = {
   fileSize: number;
   mimeType: string;
   uploadedBy: string;
+  cloudinaryUrl: string;
+  cloudinaryPublicId: string;
 };
 
 export const storage = {
   // User methods
   async createUser(userData: CreateUser): Promise<User> {
-    return await memoryStorage.createUser(userData);
+    return await mongoStorage.createUser(userData);
   },
 
   async getUserById(id: string): Promise<User | null> {
-    return await memoryStorage.getUserById(id);
+    return await mongoStorage.getUserById(id);
   },
 
   async getUserByEmail(email: string): Promise<User | null> {
-    return await memoryStorage.getUserByEmail(email);
+    return await mongoStorage.getUserByEmail(email);
   },
 
   async getAllUsers(): Promise<any[]> {
-    return await memoryStorage.getAllUsers();
+    return await mongoStorage.getAllUsers();
   },
 
   async updateUser(id: string, updates: Partial<UpsertUser>): Promise<void> {
-    await memoryStorage.updateUser(id, updates);
+    await mongoStorage.updateUser(id, updates);
   },
 
   async deleteUser(id: string): Promise<void> {
-    await memoryStorage.deleteUser(id);
+    await mongoStorage.deleteUser(id);
   },
 
   // Project methods
   async createProject(projectData: InsertProject): Promise<Project> {
-    return await memoryStorage.createProject(projectData);
+    return await mongoStorage.createProject(projectData);
   },
 
   async getAllProjects(): Promise<any[]> {
-    return await memoryStorage.getAllProjects();
+    return await mongoStorage.getAllProjects();
   },
 
   async getProjectById(id: string): Promise<any | null> {
-    return await memoryStorage.getProjectById(id);
+    return await mongoStorage.getProjectById(id);
   },
 
   async updateProject(id: string, updates: Partial<InsertProject>): Promise<void> {
-    await memoryStorage.updateProject(id, updates);
+    await mongoStorage.updateProject(id, updates);
   },
 
   async deleteProject(id: string): Promise<void> {
-    await memoryStorage.deleteProject(id);
+    await mongoStorage.deleteProject(id);
   },
 
   // Project assignment methods
   async assignUserToProject(assignmentData: InsertProjectAssignment): Promise<ProjectAssignment> {
-    return await memoryStorage.assignUserToProject(assignmentData);
+    return await mongoStorage.assignUserToProject(assignmentData);
   },
 
   async removeUserFromProject(projectId: string, userId: string): Promise<void> {
-    await memoryStorage.removeUserFromProject(projectId, userId);
+    await mongoStorage.removeUserFromProject(projectId, userId);
   },
 
   async getUserProjects(userId: string): Promise<any[]> {
-    return await memoryStorage.getUserProjects(userId);
+    return await mongoStorage.getUserProjects(userId);
   },
 
   // Document methods
   async createDocument(documentData: InsertDocument): Promise<Document> {
-    return await memoryStorage.createDocument(documentData);
+    return await mongoStorage.createDocument(documentData);
   },
 
   async getProjectDocuments(projectId: string): Promise<Document[]> {
-    return await memoryStorage.getProjectDocuments(projectId);
+    return await mongoStorage.getProjectDocuments(projectId);
   },
 
   async deleteDocument(id: string): Promise<void> {
-    await memoryStorage.deleteDocument(id);
+    await mongoStorage.deleteDocument(id);
+  },
+
+  async getDocumentById(id: string): Promise<Document | null> {
+    return await mongoStorage.getDocumentById(id);
   },
 
   // Dashboard stats method
   async getDashboardStats(): Promise<any> {
-    return await memoryStorage.getDashboardStats();
+    return await mongoStorage.getDashboardStats();
   },
 };

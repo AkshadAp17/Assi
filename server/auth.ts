@@ -9,6 +9,13 @@ export interface AuthRequest extends Request {
   user?: User;
 }
 
+// Extend Express User type to match our User type
+declare global {
+  namespace Express {
+    interface User extends import('./storage').User {}
+  }
+}
+
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const MemoryStoreSession = MemoryStore(session);

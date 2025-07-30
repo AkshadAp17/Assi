@@ -41,6 +41,8 @@ function convertDocument(doc: any): IDocument {
     id: doc._id.toString(),
     projectId: doc.projectId.toString(),
     uploadedBy: doc.uploadedBy.toString(),
+    cloudinaryUrl: doc.cloudinaryUrl,
+    cloudinaryPublicId: doc.cloudinaryPublicId,
     createdAt: doc.createdAt || null,
     updatedAt: doc.updatedAt || null,
   };
@@ -280,5 +282,32 @@ export const mongoStorage = {
   async deleteDocument(id: string): Promise<void> {
     await connectToDatabase();
     await Document.findByIdAndDelete(id);
+  },
+
+  async getDocumentById(id: string): Promise<IDocument | null> {
+    await connectToDatabase();
+    const document = await Document.findById(id);
+    return document ? convertDocument(document) : null;
+  },
+
+  // Dashboard stats method
+  async getDashboardStats(): Promise<any> {
+    await connectToDatabase();
+    const users = await User.find({});
+    const projects = await Project.find({});
+    const documents = await Document.find({});
+    
+    const activeProjects = projects.filter(p => p.status === 'active').length;
+    const completedProjects = projects.filter(p => p.status === 'completed').length;
+    const totalUsers = users.length;
+    const totalDocuments = documents.length;
+
+    return {
+      totalProjects: projects.length,
+      activeProjects,
+      completedProjects,
+      totalUsers,
+      totalDocuments,
+    };
   },
 };

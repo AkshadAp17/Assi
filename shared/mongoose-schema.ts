@@ -114,6 +114,15 @@ const documentSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  // Cloudinary fields
+  cloudinaryUrl: {
+    type: String,
+    required: true,
+  },
+  cloudinaryPublicId: {
+    type: String,
+    required: true,
+  },
 }, {
   timestamps: true,
 });
@@ -170,6 +179,8 @@ export type IDocument = {
   fileSize: number;
   mimeType: string;
   uploadedBy: string;
+  cloudinaryUrl: string;
+  cloudinaryPublicId: string;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
