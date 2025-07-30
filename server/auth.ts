@@ -12,7 +12,15 @@ export interface AuthRequest extends Request {
 // Extend Express User type to match our User type
 declare global {
   namespace Express {
-    interface User extends import('./storage').User {}
+    interface User {
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: "admin" | "project_lead" | "developer";
+      profileImageUrl?: string;
+      passwordHash: string;
+    }
   }
 }
 

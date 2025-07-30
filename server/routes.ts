@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, type AuthRequest } from "./auth";
+import type { Request, Response } from "express";
 import { requireAdmin, requireProjectLead, requireDeveloper } from "./middleware/auth";
 import { upload } from "./middleware/upload";
 import { sendWelcomeEmail } from "./email";
@@ -22,12 +23,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes are now handled in auth.ts
 
   // User management routes (Admin only)
-  app.get('/api/users', (req, res, next) => {
+  app.get('/api/users', (req: Request, res: Response, next) => {
     isAuthenticated(req as AuthRequest, res, (err) => {
       if (err) return next(err);
       requireProjectLead(req as AuthRequest, res, next);
     });
-  }, async (req: AuthRequest, res) => {
+  }, async (req: AuthRequest, res: Response) => {
     try {
       const users = await storage.getAllUsers();
       res.json(users);
