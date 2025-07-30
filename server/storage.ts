@@ -1,6 +1,5 @@
-// MongoDB storage implementation - replaces Drizzle/PostgreSQL
-import { mongoStorage } from './mongodb-storage';
-import bcrypt from 'bcryptjs';
+// In-memory storage implementation - replaces MongoDB for simpler deployment
+import { memoryStorage } from './memory-storage';
 
 // Types for compatibility with existing code
 export type User = {
@@ -84,92 +83,78 @@ export type InsertDocument = {
 export const storage = {
   // User methods
   async createUser(userData: CreateUser): Promise<User> {
-    return await mongoStorage.createUser(userData);
+    return await memoryStorage.createUser(userData);
   },
 
   async getUserById(id: string): Promise<User | null> {
-    return await mongoStorage.getUserById(id);
+    return await memoryStorage.getUserById(id);
   },
 
   async getUserByEmail(email: string): Promise<User | null> {
-    return await mongoStorage.getUserByEmail(email);
+    return await memoryStorage.getUserByEmail(email);
   },
 
   async getAllUsers(): Promise<any[]> {
-    return await mongoStorage.getAllUsers();
+    return await memoryStorage.getAllUsers();
   },
 
   async updateUser(id: string, updates: Partial<UpsertUser>): Promise<void> {
-    await mongoStorage.updateUser(id, updates);
+    await memoryStorage.updateUser(id, updates);
   },
 
   async deleteUser(id: string): Promise<void> {
-    await mongoStorage.deleteUser(id);
+    await memoryStorage.deleteUser(id);
   },
 
   // Project methods
   async createProject(projectData: InsertProject): Promise<Project> {
-    return await mongoStorage.createProject(projectData);
+    return await memoryStorage.createProject(projectData);
   },
 
   async getAllProjects(): Promise<any[]> {
-    return await mongoStorage.getAllProjects();
+    return await memoryStorage.getAllProjects();
   },
 
   async getProjectById(id: string): Promise<any | null> {
-    return await mongoStorage.getProjectById(id);
+    return await memoryStorage.getProjectById(id);
   },
 
   async updateProject(id: string, updates: Partial<InsertProject>): Promise<void> {
-    await mongoStorage.updateProject(id, updates);
+    await memoryStorage.updateProject(id, updates);
   },
 
   async deleteProject(id: string): Promise<void> {
-    await mongoStorage.deleteProject(id);
+    await memoryStorage.deleteProject(id);
   },
 
   // Project assignment methods
   async assignUserToProject(assignmentData: InsertProjectAssignment): Promise<ProjectAssignment> {
-    return await mongoStorage.assignUserToProject(assignmentData);
+    return await memoryStorage.assignUserToProject(assignmentData);
   },
 
   async removeUserFromProject(projectId: string, userId: string): Promise<void> {
-    await mongoStorage.removeUserFromProject(projectId, userId);
+    await memoryStorage.removeUserFromProject(projectId, userId);
   },
 
   async getUserProjects(userId: string): Promise<any[]> {
-    return await mongoStorage.getUserProjects(userId);
+    return await memoryStorage.getUserProjects(userId);
   },
 
   // Document methods
   async createDocument(documentData: InsertDocument): Promise<Document> {
-    return await mongoStorage.createDocument(documentData);
+    return await memoryStorage.createDocument(documentData);
   },
 
   async getProjectDocuments(projectId: string): Promise<Document[]> {
-    return await mongoStorage.getProjectDocuments(projectId);
+    return await memoryStorage.getProjectDocuments(projectId);
   },
 
   async deleteDocument(id: string): Promise<void> {
-    await mongoStorage.deleteDocument(id);
+    await memoryStorage.deleteDocument(id);
   },
 
   // Dashboard stats method
   async getDashboardStats(): Promise<any> {
-    const users = await mongoStorage.getAllUsers();
-    const projects = await mongoStorage.getAllProjects();
-    
-    const activeProjects = projects.filter(p => p.status === 'active').length;
-    const completedProjects = projects.filter(p => p.status === 'completed').length;
-    const totalUsers = users.length;
-    const totalDocuments = projects.reduce((sum, p) => sum + (p._count?.documents || 0), 0);
-
-    return {
-      totalProjects: projects.length,
-      activeProjects,
-      completedProjects,
-      totalUsers,
-      totalDocuments,
-    };
+    return await memoryStorage.getDashboardStats();
   },
 };
