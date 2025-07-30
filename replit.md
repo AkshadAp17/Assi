@@ -107,9 +107,19 @@ Preferred communication style: Simple, everyday language.
 ✓ **Mobile sidebar close button**: Added X button in sidebar header specifically for mobile users
 ✓ **Responsive padding**: Adjusted page padding to work properly on both desktop (with sidebar) and mobile (without sidebar)
 
+## Recent Changes (July 30, 2025)
+
+### Environment Variable Configuration & Cloud Storage Migration (Current)
+✓ **Environment Variables Setup**: Created `.env` file with MongoDB Atlas and Cloudinary credentials instead of using Replit Secrets
+✓ **Dotenv Integration**: Added dotenv package and configured application to load environment variables from `.env` file
+✓ **Cloudinary File Storage**: Migrated from local file storage to Cloudinary cloud storage for document uploads
+✓ **MongoDB Atlas Database**: Using cloud database instead of local PostgreSQL for better scalability
+✓ **Admin User Setup**: Created admin user (admin@gmail.com / admin123) with sample project leads and developers
+✓ **TypeScript Error Resolution**: Fixed Express.User type conflicts with custom User interface for proper authentication
+
 ## Recent Changes (July 29, 2025)
 
-### Complete Migration to Standard Replit Environment with MongoDB Atlas (Current)
+### Complete Migration to Standard Replit Environment with MongoDB Atlas
 ✓ **Successfully migrated from Replit Agent**: Project now runs cleanly in standard Replit environment with proper workflow configuration
 ✓ **MongoDB Atlas Integration**: Completely replaced PostgreSQL/Drizzle setup with MongoDB Atlas using provided connection string
 ✓ **Mongoose Schema Implementation**: Created comprehensive MongoDB schemas for Users, Projects, Documents, and ProjectAssignments
