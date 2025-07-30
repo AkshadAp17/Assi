@@ -72,14 +72,30 @@ export const mongoStorage = {
   async getAllUsers(): Promise<any[]> {
     await connectToDatabase();
     const users = await User.find({});
+    const projects = await Project.find({});
     const assignments = await ProjectAssignment.find({});
     
     return users.map(user => {
-      const userAssignments = assignments.filter(a => a.userId.toString() === user._id.toString());
+      let projectCount = 0;
+      
+      if (user.role === 'admin') {
+        projectCount = projects.length; // Admin can see all projects
+      } else if (user.role === 'project_lead') {
+        // Count projects where this user is the lead (createdBy)
+        projectCount = projects.filter(project => 
+          project.createdBy.toString() === user._id.toString()
+        ).length;
+      } else {
+        // Count assignments for developers
+        projectCount = assignments.filter(assignment => 
+          assignment.userId.toString() === user._id.toString()
+        ).length;
+      }
+      
       return {
         ...convertUser(user),
         _count: {
-          projectAssignments: userAssignments.length,
+          projectAssignments: projectCount,
         },
       };
     });
@@ -297,8 +313,19 @@ export const mongoStorage = {
     const projects = await Project.find({});
     const documents = await Document.find({});
     
-    const activeProjects = projects.filter(p => p.status === 'active').length;
-    const completedProjects = projects.filter(p => p.status === 'completed').length;
+    // Fix project status counts - check for actual values in database
+    const activeProjects = projects.filter(p => 
+      p.status === 'active' || p.status === 'in_progress' || !p.status
+    ).length;
+    const completedProjects = projects.filter(p => 
+      p.status === 'completed' || p.status === 'complete'
+    ).length;
+    const onHoldProjects = projects.filter(p => 
+      p.status === 'on_hold' || p.status === 'hold'
+    ).length;
+    
+    // Count team members (exclude admin)
+    const teamMembers = users.filter(u => u.role !== 'admin').length;
     const totalUsers = users.length;
     const totalDocuments = documents.length;
 
@@ -306,6 +333,8 @@ export const mongoStorage = {
       totalProjects: projects.length,
       activeProjects,
       completedProjects,
+      onHoldProjects,
+      teamMembers,
       totalUsers,
       totalDocuments,
     };

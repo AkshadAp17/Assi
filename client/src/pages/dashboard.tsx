@@ -11,14 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "wouter";
 import { Folder, Users, Clock, FileText, Gamepad2, Menu } from "lucide-react";
-import type { ProjectWithDetails } from "@shared/schema";
+import type { ProjectWithDetails, DashboardStats } from "@shared/schema";
 
-interface DashboardStats {
-  activeProjects: number;
-  teamMembers: number;
-  dueThisWeek: number;
-  totalDocuments: number;
-}
+// Using DashboardStats from shared schema
 
 export default function Dashboard() {
   const { user, isLoading } = useAuth();
@@ -163,7 +158,7 @@ export default function Dashboard() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-green-600">Team Members</p>
-                      <p className="text-2xl font-bold text-green-800">{statsLoading ? "..." : stats?.teamMembers?.toString() || "0"}</p>
+                      <p className="text-2xl font-bold text-green-800">{statsLoading ? "..." : (stats?.teamMembers || stats?.totalUsers || 0).toString()}</p>
                     </div>
                   </div>
                   <div className="w-16 h-16 bg-green-200/50 rounded-full absolute -top-4 -right-4"></div>
@@ -305,7 +300,7 @@ export default function Dashboard() {
                             {project.status}
                           </Badge>
                           <p className="text-xs text-gray-500 mt-2 font-medium" data-testid={`text-project-deadline-${project.id}`}>
-                            Due {formatDeadline(project.deadline as string)}
+                            Due {formatDeadline(project.deadline?.toString() || null)}
                           </p>
                         </div>
                       </div>

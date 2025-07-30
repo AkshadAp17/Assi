@@ -179,8 +179,9 @@ export default function Users() {
         </Button>
       </div>
 
-      {/* Full width content */}
-      <div className="p-4 lg:p-8 pt-16">
+      {/* Full width content with proper responsive layout */}
+      <div className="lg:pl-64 pl-0">
+        <div className="p-4 lg:p-8 pt-16 lg:pt-8 max-w-7xl mx-auto">
         {/* Enhanced Header */}
         <div className="mb-8 flex flex-col lg:flex-row lg:justify-between lg:items-center space-y-4 lg:space-y-0">
           <div className="space-y-1">
@@ -348,6 +349,7 @@ export default function Users() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
 
       {showCreateDialog && (

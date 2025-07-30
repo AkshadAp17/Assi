@@ -109,9 +109,10 @@ export default function Settings() {
         </Button>
       </div>
 
-      {/* Full width content */}
-      <div className="p-4 lg:p-8 pt-16">
-        <div className="mb-8">
+      {/* Full width content with proper responsive layout */}
+      <div className="lg:pl-64 pl-0">
+        <div className="p-4 lg:p-8 pt-16 lg:pt-8 max-w-4xl mx-auto">
+          <div className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
             <div className="h-12 w-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
               <SettingsIcon className="h-6 w-6 text-white" />
@@ -125,7 +126,7 @@ export default function Settings() {
           </div>
         </div>
 
-        <div className="max-w-2xl space-y-6">
+          <div className="max-w-2xl space-y-6">
           {/* Enhanced Profile Information */}
           <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-gray-100">
@@ -280,6 +281,7 @@ export default function Settings() {
                 </div>
               </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </div>

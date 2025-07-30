@@ -210,3 +210,14 @@ export type UserWithStats = User & {
     projectAssignments: number;
   };
 };
+
+// Dashboard stats interface
+export interface DashboardStats {
+  totalProjects: number;
+  activeProjects: number;
+  completedProjects: number;
+  onHoldProjects?: number;
+  teamMembers?: number;
+  totalUsers: number;
+  totalDocuments: number;
+}

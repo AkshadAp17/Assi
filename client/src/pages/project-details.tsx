@@ -23,7 +23,8 @@ import {
   Download, 
   UserPlus, 
   UserMinus,
-  Trash2
+  Trash2,
+  Menu
 } from "lucide-react";
 // Define types locally to avoid import issues
 interface ProjectWithDetails {
@@ -276,8 +277,28 @@ export default function ProjectDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
       <Sidebar />
-      <div className="pl-64">
-        <div className="p-8">
+      
+      {/* Mobile/Desktop hamburger menu button */}
+      <div className="fixed top-4 left-4 z-50 lg:hidden">
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-white/90 backdrop-blur-sm shadow-lg border-gray-200"
+          onClick={() => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar && overlay) {
+              sidebar.classList.remove('-translate-x-full');
+              overlay.classList.remove('hidden');
+            }
+          }}
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <div className="lg:pl-64 pl-0">
+        <div className="p-4 lg:p-8 pt-16 lg:pt-8 max-w-7xl mx-auto">
           {/* Enhanced Project Header */}
           <div className="mb-8">
             <div className="flex items-center space-x-4 mb-6">
